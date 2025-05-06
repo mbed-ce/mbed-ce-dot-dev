@@ -96,16 +96,46 @@ Block devices allow access to the raw bytes stored in a memory device, without a
 
 Mbed OS includes block devices for standardized memory devices such as SPI, QSPI, and OSPI flashes, I²C EEPROMs, MicroSD cards. It also includes "virtual" block devices, such as `SlicingBlockDevice` and `MBRBlockDevice`, which divide one physical block device into smaller regions. Or, if you don't mind slow writes that stop the CPU from executing anything, there is `FlashIAPBlockDevice`, which allows you to reprogram the microcontroller's own flash memory!
 
+#### File Systems
+
+To make use of block devices, Mbed provides several file system drivers which operate using a block device. `LittleFileSystem` 1 and 2 are both available, and optimized for storing files in embedded flash memory. Also, to interoperate with devices formatted on other OSs, `FATFileSystem` can be used to read and write FAT-formatted devices. Or, if you need something more like a database than a file system, the `KVStore` library can provide robust key-value storage using a block device.
+
 ### C Library Hooks
+
+
+
 ### Development Environments
 
 ### Bootloader
 
 ## Where Mbed OS Runs
 
+Mbed OS runs on a variety of development & evaluation boards with a variety of ARM microcontrollers. Our lineup includes popular hobbyist boards, like the RP2040, Mbed LPC1768, Arduino Giga and Portenta, and FRDM-K64F. It also includes a number of somewhat more obscure vendor boards produced by vendors for evaluation of their MCUs. For the full list of supported boards, see our list [here](https://mbed-ce.github.io/mbed-ce-test-tools/targets/).
+
+Below is the list of supported microcontroller families, by manufacturer. In general, if Mbed OS supports a given MCU family, it can be ported to any specific MCU within that family and a specific board without too much difficulty.
+
+| Manufacturer | MCU Families |
+|--------------|--------------|
+| ST Microelectronics | F0, F1, F2, F3, F4, F7, G0, G4, H5, H7, L0, L1, L4, L5, U5, WB, WL|
+| NXP (incl. Freescale) | i.MXRT 105x/6x, i.MXRT 117x, K22F, KL25Z, KL43Z, KW43Z, KL46Z, K64F, K66F, K82F, LPC1114, LPC17xx, LPC54114, LPC546xx|
+| Nuvoton | M48x, M46x, M45x, Nano130, NUC472, M2354, M251, M261 |
+| Raspberry Pi | RP2040 |
+| Ambiq Micro | Apollo3 |
+| Infineon (formerly Cypress) | PSOC 62, PSOC 64 |
+| Maxim | MAX32620, MAX32630, MAX32660, MAX32670 |
+| Nordic Semiconductor | nRF52832, nRF52840 |
+| Renesas | RZ/A1xx, RZ/A2xx |
+| Silicon Labs | EFM32GG |
+| Analog Devices | ADuCM4050, ADuCM3029 |
+| Giga Devices | GD32F3, GD32F4 |
+| Samsung | S1SBP6A |
+| Toshiba | TX04 M460, TXZ+ M4G, TXZ+ M4K, TXZ+ M4N |
+
 ## Mbed Community Edition
 
 This site is for Mbed OS Community Edition, or Mbed CE for short. Mbed CE is a community-led continuation of the Mbed OS project after its abandonment by ARM. Anyone can contribute features, bugfixes, or even new targets to Mbed CE -- visit the repository linked in the header for the source code!
 
 ### Differences from Mbed OS 6
+
+At Mbed CE, we are proud to have made a number of improvements from ARM Mbed OS 6.
 
