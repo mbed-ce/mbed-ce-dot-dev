@@ -1,10 +1,10 @@
 # What is Mbed OS CE?
 
-Mbed OS is an embedded real-time operating system (RTOS) and hardware abstraction layer (HAL) written in C/C++ that runs across a wide range of ARM microcontrollers (MCUs). Mbed OS can run on chips as small as 16 k RAM / 64k flash, but also scales up to ones with megabytes of RAM and flash. Mbed OS is designed for Internet of Things (IoT) applications, and as such supports wired and wireless network connectivity, Internet protocols, and network encryption.
+Mbed OS is an embedded real-time operating system (RTOS) and hardware abstraction layer (HAL) written in C/C++ that runs across a wide range of ARM microcontrollers (MCUs). Mbed OS can run on chips as small as 16k RAM / 64k flash, but also scales up to ones with megabytes of RAM and flash. Mbed OS is designed for Internet of Things (IoT) applications, and as such supports wired and wireless network connectivity, Internet protocols, and network encryption.
 
-What does that mean in plain English? Well, Mbed OS is a software framework to make it easier & faster to program microcontrollers. It is designed to make the basics (e.g. initializing the chip, talking to other chips, running multiple threads, and using the network) as simple as possible, without sacrificing the ability to access advanced features. Were you to start from zero (or with the limited SDKs the manufacturers provide), it would take weeks or months of work to get to the point where you could blink an LED, print out a message, or send a network packet. Mbed OS is designed to handle that stuff for you, so you can proceed with your project with a minimum of fuss.
+What does that mean in plain English? Well, Mbed OS is a software framework to make it easier & faster to program microcontrollers. It is designed to make the basics (e.g. initializing the chip, talking to other chips, running multiple threads, and using the network) as simple as possible, without sacrificing the ability to access advanced features. Were you to start from nothing (or with the limited SDKs the manufacturers provide), it can take weeks or months of work to get to the point where you can blink an LED, print out a message, or send a network packet. Mbed OS is designed to handle that stuff for you, so you can proceed with your project with a minimum of fuss.
 
-Mbed OS uses clean C++ for its user-facing API (and efficient C code for the majority of its internals). This provides an elegant way to model things like that have internal state and life cycles, like processor peripherals, network sockets, and external chips. You'll find no device tree files or homegrown configuration languages here -- your project is simply defined by which hardware objects it creates and what pins it passes to them (though there's also a sprinkling of JSON for configuring global options and defining new targets). In this developer's opinion, it's the cleanest way that anyone has ever figured out to make complex peripherals and hardware usable from simple code.
+Mbed OS uses clean C++ for its user-facing API (and efficient C code for the majority of its internals). This provides an elegant way to model things that have internal state and life cycles, like processor peripherals, network sockets, and external chips. You'll find no device tree files or homegrown configuration languages here -- your project is simply defined by which hardware objects it creates and what pins it passes to them (though there's also a sprinkling of JSON for configuring global options and defining new targets). In this developer's opinion, it's the cleanest way that anyone has ever figured out to make complex peripherals and hardware usable from simple code.
 
 ## Features of Mbed OS
 ### RTOS (or not)
@@ -16,7 +16,7 @@ If you don't need the RTOS, no problem! Just set
 ```
 in your mbed_app.json5 file and the RTOS goes away, freeing up additional RAM for your application to use.
 
-_Note that more advanced functionality of Mbed, such as networking and bluetooth, does require the RTOS._
+_Note that more advanced functionality of Mbed, such as networking and bluetooth, requires the RTOS._
 
 ### Microcontroller Peripherals
 Mbed OS provides drivers for most common peripherals of most microcontrollers, including:
@@ -89,7 +89,7 @@ After joining a network, Mbed applications can use static IPs, DHCP, or address 
 
 ### I/O and Storage
 
-Many embedded applications need to store data locally, and Mbed provides easy, effective ways to do this. There are two layers to Mbed's storage API: block devices and filesystems.
+Many embedded applications need to store persistent data locally, and Mbed provides easy, effective ways to do this. There are two layers to Mbed's storage API: block devices and filesystems.
 
 #### Block Devices
 Block devices allow access to the raw bytes stored in a memory device, without any idea of the structure of said bytes. Block devices provide APIs to read, program, and erase a memory device, as well as a way to check its size and attributes.
@@ -98,7 +98,7 @@ Mbed OS includes block devices for standardized memory devices such as SPI, QSPI
 
 #### File Systems
 
-To make use of block devices, Mbed provides several file system drivers which operate using a block device. `LittleFileSystem` 1 and 2 are both available, and optimized for storing files in embedded flash memory. Also, to interoperate with devices formatted on other OSs, `FATFileSystem` can be used to read and write FAT-formatted devices. Or, if you need something more like a database than a file system, the `KVStore` library can provide robust key-value storage using a block device.
+To make use of block devices, Mbed provides several file system drivers which operate using a block device. `LittleFileSystem` 1 and 2 are both available, and optimized for storing files in embedded flash memory. Also, to interoperate with memory formatted on other OSs, `FATFileSystem` can be used to read and write FAT32-formatted devices. Or, if you need something more like a database than a file system, the `KVStore` library can provide robust key-value storage using a block device.
 
 ### C Library Hooks
 
