@@ -24,7 +24,7 @@ jobs:
     # Copy the built files to the server (only if this is on master branch)
     - name: Deploy Site
       if: github.ref == 'refs/heads/master'
-      uses: easingthemes/ssh-deploy@v5
+      uses: easingthemes/ssh-deploy@v5.1.0
       with:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         ARGS: "-rlgoDzvc -i --delete"
