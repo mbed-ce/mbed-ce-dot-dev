@@ -20,3 +20,15 @@ jobs:
       run: |
         source .venv/bin/activate
         mkdocs build
+
+    # Copy the built files to the server (only if this is on master branch)
+    - name: Deploy Site
+      if: github.ref == 'refs/heads/master'
+      uses: easingthemes/ssh-deploy@v5
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-rlgoDzvc -i --delete"
+        SOURCE: "site/"
+        REMOTE_HOST: mbed-ce.dev
+        REMOTE_USER: website-deploy
+        TARGET: /var/www/html
