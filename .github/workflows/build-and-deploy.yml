@@ -14,7 +14,7 @@ jobs:
     - name: Create Venv for Mkdocs
       run: |
         python3 -m venv .venv
-        source .venv/bin/activate.sh
+        source .venv/bin/activate
         pip install -r requirements.txt
     - name: Build Site
       run: |
