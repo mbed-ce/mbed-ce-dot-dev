@@ -111,7 +111,7 @@ To make use of block devices, Mbed provides several file system drivers which op
 
 ## Where Mbed OS Runs
 
-Mbed OS runs on a variety of development & evaluation boards with a variety of ARM microcontrollers. Our lineup includes popular hobbyist boards, like the RP2040, Mbed LPC1768, Arduino Giga and Portenta, and FRDM-K64F. It also includes a number of somewhat more obscure vendor boards produced by vendors for evaluation of their MCUs. For the full list of supported boards, see our list [here](https://mbed-ce.github.io/mbed-ce-test-tools/targets/).
+Mbed OS runs on a variety of development & evaluation boards with a number of different types of ARM microcontrollers. Our lineup includes popular hobbyist boards, like the RP2040, Mbed LPC1768, Arduino Giga and Portenta, and FRDM-K64F. It also includes a number of somewhat more obscure vendor boards produced by vendors for evaluation of their MCUs. For the full list of supported boards, see our list [here](https://mbed-ce.github.io/mbed-ce-test-tools/targets/).
 
 Below is the list of supported microcontroller families, by manufacturer. In general, if Mbed OS supports a given MCU family, it can be ported to any specific MCU within that family and a specific board without too much difficulty.
 
@@ -138,5 +138,15 @@ This site is for Mbed OS Community Edition, or Mbed CE for short. Mbed CE is a c
 
 ## Differences from Mbed OS 6
 
-At Mbed CE, we are proud to have made a number of improvements from ARM Mbed OS 6.
+At Mbed CE, we are proud to have made a number of improvements from ARM Mbed OS 6. These include (but are not limited to):
+
+- Setting up a CMake-based build system that builds and links the C++ code using standard tooling (instead of homegrown python scripts)
+- Splitting the Mbed codebase up into a core library and a number of optional libraries, such as networking and storage. This reduces build time and code bloat if you don't need these extra features.
+- Support for a number of new target boards for existing MCUs, including Teensy 4.0/4.1, Arduino Nicla Sense, and Arduino Giga & Portenta
+- Support for some completely new MCU families, including STM32H5, STM32U0, and RP2040
+- A new "upload method" system, which allows you to build and flash code with one click by building a target from the CLI or an IDE, whether you are using the USB drive mode or a debugger
+- API updates to the `I2C` class to make it better documented, easier to use, and have an enum for return codes. No more "0 means success from some functions but failure from others"!
+- A new [CI test shield](https://github.com/mbed-ce/mbed-ce-ci-shield-v2) that does compliance testing on drivers like I2C, SPI, and PWM to make sure that they actually work how they are supposed to when merging changes. Work on automating this testing for more devices is still ongoing.
+- A memory bank configuration system that keeps track of what memory banks exist on a device and lets you easily configure the region of flash that a build should use (and it understands the difference between what _physically exists_ vs what _should actually be used_!)
+- 
 
