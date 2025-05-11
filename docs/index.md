@@ -1,4 +1,5 @@
-# What is Mbed OS CE?
+# Mbed OS Community Edition
+## What is Mbed OS?
 
 Mbed OS is an embedded real-time operating system (RTOS) and hardware abstraction layer (HAL) written in C/C++ that runs across a wide range of ARM microcontrollers (MCUs). Mbed OS can run on chips as small as 16k RAM / 64k flash, but also scales up to ones with megabytes of RAM and flash. Mbed OS is designed for Internet of Things (IoT) applications, and as such supports wired and wireless network connectivity, Internet protocols, and network encryption.
 
@@ -131,11 +132,11 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 | Samsung | S1SBP6A |
 | Toshiba | TX04 M460, TXZ+ M4G, TXZ+ M4K, TXZ+ M4N |
 
-## Mbed Community Edition
+## Why Mbed Community Edition?
 
 This site is for Mbed OS Community Edition, or Mbed CE for short. Mbed CE is a community-led continuation of the Mbed OS project after its abandonment by ARM. Anyone can contribute features, bugfixes, or even new targets to Mbed CE -- visit the repository linked in the header for the source code!
 
-### Differences from Mbed OS 6
+## Differences from Mbed OS 6
 
 At Mbed CE, we are proud to have made a number of improvements from ARM Mbed OS 6.
 

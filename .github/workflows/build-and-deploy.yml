@@ -1,0 +1,21 @@
+name: Build and Deploy
+
+on: [push]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13' 
+    - name: Create Venv for Mkdocs
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate.sh
+        pip install -r requirements.txt
+    - name: Build Site
+      run: |
+        mkdocs build

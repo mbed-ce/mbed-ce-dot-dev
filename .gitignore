@@ -1,0 +1,7 @@
+
+# Generated site
+site/
+
+# Python venv
+.venv/
+venv/
