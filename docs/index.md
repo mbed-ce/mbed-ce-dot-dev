@@ -103,11 +103,23 @@ To make use of block devices, Mbed provides several file system drivers which op
 
 ### C Library Hooks
 
+Mbed OS integrates with the Newlib C library so that many standard C functions will work how you're used to, even on embedded.
 
+File I/O is implemented, on both filesystem files and streams (e.g. serial ports). Simply use the `fdopen()` function to get a `FILE *` from a file descriptor or `FileHandle` object, and then you can use it with all of the standard C I/O functions like fwrite, fread, fprintf, and fscanf. Filesystem functions are also available, so you can use `opendir()`/`readdir()` to walk through directories and `open()` to open files.
+
+Time functions are also supported -- the C `clock()` function will work as expected via the us ticker, and if your chip has a real-time clock, you can set its time via `settimeofday()` and access it via `gettimeofday()` or `time()`. Mbed also integrates deeply with the C++ `chrono` library -- more docs on this will be posted soon.
 
 ### Development Environments
 
+While, as a volunteer project, we cannot support anything like the online compiler, we do support several powerful development environments. Many users enjoy our VS Code integration -- the Mbed OS project generates all of the right config files needed for VS Code to build, flash, and debug code out of the box. We also integrate with JetBrains CLion, a paid option with very capable code analysis. But don't feel left out if you don't like IDEs -- we also support development via the command line, so you can flash and debug without needing a GUI at all.
+
 ### Bootloader
+
+Most serious firmware projects will need some way to update themselves in the field without a debug probe connected. Mbed CE provides this via the [MCUBoot bootloader](https://github.com/mbed-ce/mbed-mcuboot-bootloader). MCUBoot is a small bootloader that lets your application update itself without putting any constraints on how and when you download your updates. Your application simply has to download an update image and copy it to the designated location in some connected memory device, and then reboot.
+
+The bootloader will then see the update image and swap it with the current application image, in a way that is both power-off-safe and reversible. Then it will boot up the new image, but if it fails to boot, it will swap back to the old one to let it sort out the problem.
+
+MCUBoot always uses cryptographic signatures to sign images and make sure that only authenticated and non-corrupt images can be installed. It also optionally can encrypt the images until they are installed, so that your application code isn't available to someone who obtains the update image.
 
 ## Where Mbed OS Runs
 
