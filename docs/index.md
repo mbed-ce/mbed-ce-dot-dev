@@ -160,5 +160,3 @@ At Mbed CE, we are proud to have made a number of improvements from ARM Mbed OS 
 - API updates to the `I2C` class to make it better documented, easier to use, and have an enum for return codes. No more "0 means success from some functions but failure from others"!
 - A new [CI test shield](https://github.com/mbed-ce/mbed-ce-ci-shield-v2) that does compliance testing on drivers like I2C, SPI, and PWM to make sure that they actually work how they are supposed to when merging changes. Work on automating this testing for more devices is still ongoing.
 - A memory bank configuration system that keeps track of what memory banks exist on a device and lets you easily configure the region of flash that a build should use (and it understands the difference between what _physically exists_ vs what _should actually be used_!)
-- 
-
