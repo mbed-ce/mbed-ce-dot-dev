@@ -10,7 +10,7 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
 2. Download the latest Ninja Build binary from [here](https://github.com/ninja-build/ninja/releases) (grab ninja-win.zip).  Then, you need to extract the exe file to somewhere on your PATH.  Note: It might be convenient to put it into the CMake bin folder (`C:\Program Files\CMake\bin`) since the CMake installer has already added that to your PATH.
 3. Go to ARM's [toolchain download page](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) and download the exe installer under "Windows (mingw-w64-x86_64) hosted cross toolchains" &gt; "AArch32 bare-metal target (arm-none-eabi)".  Then, execute it and go through the installer, making sure to check the "Add path to environment variable" box!
 
-    ![ARM toolchain installer](https://user-images.githubusercontent.com/2099358/188507266-77fd7b82-3dc5-4949-a806-419211d91a13.png)
+    ![ARM toolchain installer](img/arm-toolchain-installer.png)
 
 4. If you don't already have it, install [Git](https://git-scm.com/). It is important for work with Github repos - creating, importing or cloning of projects and libraries.
 
@@ -20,18 +20,16 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
 
     > **WARNING!** - The Windows Store version of python is not recommended.  To make sure Python gets installed correctly, follow the install process below:
 
-
-
      On the first screen, select the "Add Python 3.x to PATH" checkbox, then click "Customize installation"
-     ![Python installer screen 1](https://user-images.githubusercontent.com/2099358/188504261-450ebf3a-7cdf-46ae-a2f9-4e071e0b9b2f.png)
+     ![Python installer screen 1](img/windows-python-installer-screen1.png)
 
     Click Next on the second screen.
 
-    ![Python installer screen 2](https://user-images.githubusercontent.com/2099358/188504354-7451910d-adb8-4466-a2f5-fd52c7c68ea2.png)
+    ![Python installer screen 2](img/windows-python-installer-screen2.png)
 
     On the third screen, check "Install for all users".  Also, make sure "Add Python to environment variables" is checked.
   
-    ![Python installer screen 3](https://user-images.githubusercontent.com/2099358/188504519-e1d2e035-7727-4a85-9f9b-91c01d119a77.png)
+    ![Python installer screen 3](img/windows-python-installer-screen3.png)
    
     The installer should now run and complete.  
 
@@ -72,6 +70,6 @@ The toolchain should now be set up!
 If you want to debug your code, you will also need to install one of the upload methods that supports debugging.  Which one to use depends on your specific setup -- generally openocd and pyocd can be used on all processors, but others such as STM32Cube only work with specific ones.  See the [Upload Methods](upload-methods.md) page for details about the methods and how to install them.
 
 # Optional: Install CCache
-CCache will speed up compilation a lot by caching built files and reusing them if the dependencies haven't changed.. The current download can be found here: https://ccache.dev/
+CCache will speed up compilation a lot by caching built files and reusing them if the dependencies haven't changed. The current download can be found here: https://ccache.dev/
 Windows: Unzip the downloaded files to a program directory. Add the path to the environment path variable (Win Key, type 'env' for quick access). Then CMake will find the CCache tool and add it to CMakeCache.txt.
 

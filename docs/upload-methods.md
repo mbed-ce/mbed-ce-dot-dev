@@ -5,7 +5,7 @@ You can watch one example of installing an upload method (STM32CUBE) in a video:
 
 In order to upload, your board will need to have one or more upload methods configured for it in CMake. Some boards already have configuration provided by us (see [here](https://github.com/mbed-ce/mbed-os/tree/master/targets/upload_method_cfg) in the source). For boards that don't, or custom boards, you will need to provide the configuration yourself, by defining certain parameters in your top-level buildscript (or an include file). The different parameters and their values are explained in this document.
 
-**IMPORTANT:** These variables need to be set in your CMakeLists immediately after including `mbed_project_setup`, before any add_subdirectory() calls.
+**IMPORTANT:** These variables need to be set in your top-level CMakeLists.txt immediately after including `mbed_project_setup`, before any add_subdirectory() calls.
 
 Once you configure some upload methods, you can then run cmake with the `-DUPLOAD_METHOD=<method>` argument to select the method and enable uploading your code to the target.
 
@@ -72,7 +72,7 @@ For J-Link probes, this option can be set to [the serial number of the probe or 
 
 ## Mbed USB
 
-This upload method interfaces with standard MBed boards which present themselves as USB drives. The Mbed python tools are used to automatically locate and flash boards connected to the system. The `MBED_UPLOAD_SERIAL_NUMBER` parameter is respected if you wish to select a specific board.
+This upload method interfaces with standard Mbed boards which present themselves as USB drives. The Mbed python tools are used to automatically locate and flash boards connected to the system. The `MBED_UPLOAD_SERIAL_NUMBER` parameter is respected if you wish to select a specific board.
 
 > ⚠️ **Personally, I have found the MBED upload method to be extremely unreliable on Linux.** It seems to be some sort of issue with the CMSIS-DAP firmware. If code uploads are not working reliably, switch to one of the other upload methods.
 
@@ -82,7 +82,7 @@ This upload method interfaces with standard MBed boards which present themselves
 
 **Type:** Bool
 
-Whether the MBed upload method can be activated.
+Whether the Mbed upload method can be activated.
 
 > MBED_RESET_BAUDRATE
 
@@ -190,9 +190,9 @@ Acceptable version range of OpenOCD. This may be a single version (e.g. "0.12"),
 
 This uploader uses STMicroelectronics' official upload and debugging tools for its ST-LINK programmers. The upload tool can be obtained from the standalone [STM32CubeProg package](https://www.st.com/en/development-tools/stm32cubeprog.html), but for the GDB server you need the [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)(3.3GB) or [STM32CubeCLT](https://www.st.com/en/development-tools/stm32cubeclt.html)(1.7GB), which includes both programs.
 
-In my testing, STM32Cube is at least 5 times faster than PyOCD at uploading code to the chip, so if you have a large program it might be worth taking the time to set up. Also, its debugger seems to be considerably faster at things like setting breakpoints and single-stepping through code.
+In my testing, STM32Cube can be up to 5 times faster than PyOCD at uploading code to a chip, so if you have a large program it might be worth taking the time to set up. Also, its debugger seems to be considerably faster at things like setting breakpoints and single-stepping through code.
 
-If you need the *programmer only*, you can install the relatively lightweight STM32CubeProg application. Once installed, find the `STM32_Programmer_CLI` executable in its install dir and pass the `-DSTM32CubeProg_PATH=<path to STM32_Programmer_CLI>` argument to CMake to point to it. 
+If you need the *programmer only*, you can install the relatively lightweight STM32CubeProg application. Once installed, find the `STM32_Programmer_CLI` executable in its install dir and pass the `-DSTM32CubeProg_PATH=</path/to/STM32_Programmer_CLI>` argument to CMake to point to it. 
 
 If you need the programmer and the debugger, you must install the whole STM32CubeIDE or STM32CubeCLT. If you installed to the default install location, CMake should find it automatically. If not, set the `STM32CUBE_IDE_PATH` or `STM32CUBE_CLT_PATH` variable to point to the IDE or CLT install dir, which CMake will use to find the other tools. Note that on Macs this needs to point to the IDE dir inside the app package, e.g. `-DSTM32CUBE_IDE_PATH=/Applications/STM32CubeIDE.app/Contents/Eclipse`.
 
@@ -210,7 +210,7 @@ Whether the STM32Cube upload method can be activated.
 
 **Type:** List
 
-"Connect" (-c) command to pass to the programmer to connect to your target device. `port=SWD` should be all that's needed for most Mbed boards, but some also seem to need `reset=HWrst`. 
+"Connect" (-c) command to pass to the programmer to connect to your target device. `port=SWD` should be all that's needed for most Mbed boards, but some also seem to need `reset=HWrst`. Note that if the user sets `-DMBED_UPLOAD_SERIAL_NUMBER=x`, a string like `sn=x` will get added to the end of these options to specify the serial number.
 
 > STM32CUBE_GDBSERVER_ARGS
 
@@ -218,23 +218,13 @@ Whether the STM32Cube upload method can be activated.
 
 Arguments to pass to the ST-Link gdbserver. `--swd` should be all that's needed in most situations.
 
-### Options:
-
-> STM32CUBE_PROBE_SN
-
-**Type:** String
-
-_As of Oct 8, 2024 this is deprecated in favor of MBED_UPLOAD_SERIAL_NUMBER_
-
-Serial number of the ST-Link probe to connect to. If blank, will connect to any probe. You can get the list of serial numbers plugged into your machine with `STM32_Programmer_CLI -l`.
-
 ## STM32Cube DFU
 
 This is an alternate version of the STM32Cube upload method that uses STM32CubeProgrammer in Device Firmware Upgrade (DFU) mode. This lets you flash code to STM32 MCUs connected over USB and booted into their bootloader ROM. This is one of the simplest ways to flash code as it requires no external debug probe. However, it cannot debug, and it generally requires a manual reset of the target to get in and out of DFU mode.
 
 For information on how to set up this upload method, see the STM32Cube section above.
 
-Note that Mbed CE also supports uploading to DFU devices via dfu-utils (see below for details). Compared to dfu-utils, STM32Cube is faster, but lacks the ability to reset the device and exit out of DFU mode after programming. (no idea why this is, but even official STMicro posts say to use dfu-utils if you need to reset the device).
+Note that Mbed CE also supports uploading to DFU devices via dfu-utils (see below for details). Compared to dfu-utils, STM32Cube is faster, but lacks the ability to reset the device and exit out of DFU mode after programming, so you will need to manually reset the chip. (no idea why this is, but even official STMicro posts say to use dfu-utils if you need to reset the device).
 
 ### Parameters: 
 
@@ -277,16 +267,6 @@ Load address argument to pass to stlink.
 **Type:** List of Strings
 
 Arguments to pass to stlink programs. The list of valid options is [here](https://github.com/stlink-org/stlink/blob/develop/doc/tutorial.md).
-
-### Options:
-
-> STLINK_PROBE_SN
-
-**Type:** String
-
-_As of Oct 8, 2024 this is deprecated in favor of MBED_UPLOAD_SERIAL_NUMBER_
-
-Serial number of the ST-Link probe to connect to. If blank, will connect to any probe. You can get the list of serial numbers plugged into your machine with `st-info --serial`.
 
 ## ArduinoBossac
 
@@ -340,15 +320,7 @@ Whether the LINKSERVER upload method can be activated.
 
 Chip name and board to connect to, separated by a colon. Example: `MIMXRT1062xxxxx:MIMXRT1060-EVKB`. This gets passed as the "device" argument to the LinkServer executable.
 
-### Options:
-
-> LINKSERVER_PROBE_SN
-
-**Type:** String
-
-_As of Oct 8, 2024 this is deprecated in favor of MBED_UPLOAD_SERIAL_NUMBER_
-
-Serial number, or substring of the serial number, of the probe to connect to. You can get the list of probes and their serial numbers from `LinkServer probes`.
+If you wish to define a device not included in LinkServer, you may instead set this to a path to a custom device JSON file. See `mbed-os/targets/upload_method_cfg/linkserver_devices/FF_LPC546XX.json` for an example of how to write such a file.
 
 ## Picotool
 
@@ -372,7 +344,6 @@ To use a board with Picotool, first boot it into bootloader mode by holding down
 
 Whether the Picotool upload method can be activated.
 
-
 ### Options:
 
 > PICOTOOL_TARGET_BUS
@@ -382,7 +353,6 @@ Whether the Picotool upload method can be activated.
 **Type:** Integer
 
 If you have multiple RPi Pico devices plugged in, these options may be set in order to select which one you want to program. The bus number and address can be found by running `picotool list` when multiple RPi Picos in bootloader mode are plugged in.
-
 
 ## dfu-util
 
