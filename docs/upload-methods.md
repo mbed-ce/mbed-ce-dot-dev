@@ -164,7 +164,7 @@ OpenOCD can be installed through most distro package managers, and Windows binar
 
 Note: We recommend using at least openocd 0.11, as this brings in a great deal of improvements and fixes. Additionally, for support of some newer targets such as STM32U5, OpenOCD 0.12 might be required.
 
-Note: for Nuvoton devices, the Nuvoton fork of OpenOCD is required. Download it from [https://github.com/OpenNuvoton/OpenOCD-Nuvoton/releases](here), and point CMake to it via setting the OpenOCD option. For example: `-DOpenOCD="C:/Program Files (x86)/OpenOCD-nuvoton/bin/openocd.exe"`.
+Note: for Nuvoton devices, the Nuvoton fork of OpenOCD is required. Download it from [here](https://github.com/OpenNuvoton/OpenOCD-Nuvoton/releases), and point CMake to it via setting the OpenOCD option. For example: `-DOpenOCD="C:/Program Files (x86)/OpenOCD-nuvoton/bin/openocd.exe"`.
 
 ### Parameters
 
