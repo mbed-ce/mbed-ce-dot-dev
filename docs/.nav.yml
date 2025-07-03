@@ -3,6 +3,7 @@
 # See here for docs: https://lukasgeiter.github.io/mkdocs-awesome-nav/features/nav/
 
 nav:
+  - index.md
   - Getting Started: getting-started
   - upload-methods.md
   - contributing.md
