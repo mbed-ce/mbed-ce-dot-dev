@@ -348,7 +348,15 @@ Whether the Picotool upload method can be activated.
 
 > PICOTOOL_TARGET_BUS
 
+**Type:** String
+
+If set, the `--bus` argument is passed to picotool to select the desired pico to program
+
 > PICOTOOL_TARGET_ADDRESS
+
+**Type:** String
+
+If set, the `--address` argument is passed to picotool to select the desired pico to program
 
 **Type:** Integer
 
@@ -359,7 +367,6 @@ If you have multiple RPi Pico devices plugged in, these options may be set in or
 [dfu-util](https://dfu-util.sourceforge.net/) is a program for flashing devices with a USB DFU firmware upgrade interface. This is used for certain Mbed-compatible boards, such as the Arduino Giga and Portenta. dfu-util only provides flashing, not debug support.
 
 To install dfu-util, you may install it through a package manager, for example `apt-get install dfu-util` on Ubuntu, `brew install dfu-util` on Mac, and `pacman -S mingw-w64-ucrt-x86_64-dfu-util` with MSYS2 on Windows. The Arduino IDE also provides this package, so if you have the IDE and have installed an Arduino core that uses dfu-util, Mbed should be able to find it. Last but not least, you could download the [binaries](https://dfu-util.sourceforge.net/releases/) somewhere and set the `-Ddfu_util_PATH=/path/to/dfu-util` CMake option to point to it.
-
 
 ### Parameters: 
 
@@ -380,6 +387,36 @@ VID:PID pair of the target device being programmed. Example: `2341:0366`.
 **Type:** Integer
 
 Interface number of the interface on the target that should be programmed. You can use `dfu-util -l` to list the available interfaces for each target.
+
+## Ambiq SVL
+
+This upload method allows flashing code over the UART port to [SparkFun Artemis](https://www.sparkfun.com/artemis) boards using the Ambiq Apollo3 SoC and SparkFun Variable Loader (SVL) bootloader.
+
+Like other bootloader-based upload methods, SVL communicates over a COM port, but unlike other bootloader setups, SVL is able to reset the MCU into bootloader without needing any buttons to be pressed on the board!
+
+As the [SVL script](https://github.com/sparkfun/Apollo3_Uploader_SVL/blob/main/svl.py) is not pip installable but is a single file, we elected to include it directly in Mbed OS. It will be installed in the venv as the `ambiq_svl` command.
+
+### Parameters: 
+
+> AMBIQ_SVL_UPLOAD_ENABLED
+
+**Type:** Bool
+
+Whether the Ambiq SVL upload method can be activated.
+
+> AMBIQ_SVL_UPLOAD_BAUD
+
+**Type:** Integer
+
+Baudrate to upload at. Defaults to 115200 baud.
+
+### Options:
+
+> AMBIQ_SVL_SERIAL_PORT
+
+**Type:** String
+
+Serial port to connect to the SVL bootloader over, e.g. 'COM20' or '/dev/ttyUSB0'
 
 # Creating your Own Upload Method
 

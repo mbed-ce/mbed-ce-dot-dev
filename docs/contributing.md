@@ -30,7 +30,7 @@ If you need to add additional changes to the PR after submitting it, please push
 
 ### Licensing
 
-Contributions must be licensed under an accepted open source license, and should contain a license header and SPDX identifier. See the [Mbed Source Code Licensing](For Mbed Developers/mbed-source-code-licensing.md) page for more details on how to do this.
+Contributions must be licensed under an accepted open source license, and should contain a license header and SPDX identifier. See the [Mbed Source Code Licensing](for-developers/mbed-source-code-licensing.md) page for more details on how to do this.
 
 ## Testing your Changes
 

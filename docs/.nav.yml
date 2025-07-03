@@ -1,0 +1,11 @@
+# This is an Awesome Nav for Mkdocs configuration file.
+# It sets up the order of pages displayed on the left-hand nav tree.
+# See here for docs: https://lukasgeiter.github.io/mkdocs-awesome-nav/features/nav/
+
+nav:
+  - Getting Started: getting-started
+  - upload-methods.md
+  - contributing.md
+  - maintainers.md
+  - mbed-history-and-mbed-ce.md
+  - For Developers: for-developers

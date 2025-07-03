@@ -10,6 +10,7 @@ extra_css:
  - stylesheets/extra.css
 plugins:
   - search
+  - awesome-nav
 
 # Enable syntax highlighting per https://squidfunk.github.io/mkdocs-material/reference/code-blocks/
 markdown_extensions:

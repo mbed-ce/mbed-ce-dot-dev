@@ -129,20 +129,22 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 
 | Manufacturer | MCU Families |
 |--------------|--------------|
-| ST Microelectronics | F0, F1, F2, F3, F4, F7, G0, G4, H5, H7, L0, L1, L4, L5, U5, WB, WL|
-| NXP (incl. Freescale) | i.MXRT 105x/6x, i.MXRT 117x, K22F, KL25Z, KL43Z, KW43Z, KL46Z, K64F, K66F, K82F, LPC1114, LPC17xx, LPC54114, LPC546xx|
+| ST Microelectronics | F0*, F1*, F2*, F3*, F4, F7, G0*, G4*, H5, H7, L0*, L1*, L4, L5*, U5, WB*, WL*|
+| NXP (incl. Freescale) | i.MXRT 105x/6x, i.MXRT 117x*, K22F*, KL25Z, KL43Z*, KW43Z*, KL46Z*, K64F, K66F*, K82F*, LPC1114*, LPC17xx, LPC54114*, LPC546xx|
 | Nuvoton | M48x, M46x, M45x, Nano130, NUC472, M2354, M251, M261 |
 | Raspberry Pi | RP2040 |
 | Ambiq Micro | Apollo3 |
-| Infineon (formerly Cypress) | PSOC 62, PSOC 64 |
-| Maxim | MAX32620, MAX32630, MAX32660, MAX32670 |
+| Infineon (formerly Cypress) | PSOC 62*, PSOC 64* |
+| Maxim | MAX32620*, MAX32630*, MAX32660*, MAX32670* |
 | Nordic Semiconductor | nRF52832, nRF52840 |
-| Renesas | RZ/A1xx, RZ/A2xx |
-| Silicon Labs | EFM32GG |
-| Analog Devices | ADuCM4050, ADuCM3029 |
-| Giga Devices | GD32F3, GD32F4 |
-| Samsung | S1SBP6A |
-| Toshiba | TX04 M460, TXZ+ M4G, TXZ+ M4K, TXZ+ M4N |
+| Renesas | RZ/A1xx*, RZ/A2xx* |
+| Silicon Labs | EFM32GG* |
+| Analog Devices | ADuCM4050*, ADuCM3029* |
+| Giga Devices | GD32F3*, GD32F4* |
+| Samsung | S1SBP6A* |
+| Toshiba | TX04 M460*, TXZ+ M4G*, TXZ+ M4K*, TXZ+ M4N* |
+
+* Denotes device families that have not been tested yet by the Mbed CE maintainers. Device families with this mark do not have upload method support and may not have been tested since the vendor's original porting effort, so they are more likely to have issues.
 
 ## Why Mbed Community Edition?
 

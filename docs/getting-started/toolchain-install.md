@@ -67,7 +67,7 @@ _note: We do not recommend using the official Debian/Ubuntu `gcc-arm-none-eabi` 
 The toolchain should now be set up!
 
 # Extras: Installing Debuggers
-If you want to debug your code, you will also need to install one of the upload methods that supports debugging.  Which one to use depends on your specific setup -- generally openocd and pyocd can be used on all processors, but others such as STM32Cube only work with specific ones.  See the [Upload Methods](upload-methods.md) page for details about the methods and how to install them.
+If you want to debug your code, you will also need to install one of the upload methods that supports debugging.  Which one to use depends on your specific setup -- generally openocd and pyocd can be used on all processors, but others such as STM32Cube only work with specific ones.  See the [Upload Methods](../upload-methods.md) page for details about the methods and how to install them.
 
 # Optional: Install CCache
 CCache will speed up compilation a lot by caching built files and reusing them if the dependencies haven't changed. The current download can be found here: https://ccache.dev/
