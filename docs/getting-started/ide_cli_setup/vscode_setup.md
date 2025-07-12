@@ -123,7 +123,7 @@ You can watch this part in video version - [Youtube guide](https://youtu.be/9ZDH
 5. Click on the bottom bar where it says "No Kit Selected". Then, choose "[Unspecified]" from the menu (the Mbed build scripts will find the compilers).
    ![VS Code Unspecified Kit](img/vs-code-unspecified-kit.png)
    
-7. Now, select your variant. Use Ctrl-Shift-P and find CMake: Select Variant or use same on bottom bar. Then choose the variant you want.  I'd recommend starting with the Develop one for general use.
+7. Now, select your variant. Use Ctrl-Shift-P and find CMake: Select Variant or use same on bottom bar. Then choose the variant you want.  I'd recommend starting with the Develop one for general use.  
    ![VS Code Selecting a Variant](img/vs-code-select-variant.png)
    ![VS Code Variant Dialog](img/vs-code-variant-dialog.png)
 

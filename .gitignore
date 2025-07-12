@@ -5,3 +5,6 @@ site/
 # Python venv
 .venv/
 venv/
+
+# Mac stuff
+.DS_Store
