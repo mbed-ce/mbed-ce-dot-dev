@@ -6,6 +6,7 @@ nav:
   - index.md
   - Getting Started: getting-started
   - upload-methods.md
+  - Feature Overviews: feature-overviews
   - contributing.md
   - maintainers.md
   - mbed-history-and-mbed-ce.md
