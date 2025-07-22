@@ -33,6 +33,7 @@ The below table lists each upload method, the device types it works on, its _par
 |[LinkServer](#linkserver)|`UPLOAD_METHOD=LINKSERVER`|✔️|✔️|Fast|NXP and Freescale boards, custom boards with DAPLink probes
 |[Picotool](#picotool)|`UPLOAD_METHOD=PICOTOOL`|✔️|❌|Fast|Raspberry Pi boards (via USB DFU bootloader)
 |[dfu-util](#dfu-util)|`UPLOAD_METHOD=DFU_UTIL`|✔️|❌|Medium|Boards with USB DFU bootloader
+|[Ambiq SVL](#ambiq-svl)|`UPLOAD_METHOD=AMBIQ_SVL`|✔️|❌|Medium|Ambiq Apollo3 boards with SVL bootloader
 
 ## Common Parameters (for all methods)
 
