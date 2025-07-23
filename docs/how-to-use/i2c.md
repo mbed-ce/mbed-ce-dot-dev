@@ -233,3 +233,7 @@ int main() {
 The asynchronous API allows you to run I²C operations in the background. This API is only available if your device has the `I2C_ASYNCH` feature. To use this API, use [`I2C::transfer()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#a273f3dc6765aea3f2bdca0e70ae9697c) to start an operation and [`I2C::abort_transfer()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#a90253410d768f60403698f5f383d1931) to stop it. Alternately, use the [`I2C::transfer_and_wait()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#a273c521d9f320d5c1b84975af701890f) function to block the current thread until the transfer finishes.
 
 Some devices implement these features using DMA and others use interrupts, so be mindful that there may still be significant CPU usage if you have multiple and/or high-rate transfers going on.
+
+## More Examples
+
+For more I²C examples you can try out, including a bus scanner and an example that transfers data between two Mbed MCUs over I²C, see the [I2C-examples](https://github.com/mbed-ce-libraries-examples/I2C-examples) repository!
