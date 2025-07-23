@@ -6,18 +6,18 @@ The AMA3B1KK (also known as the Ambiq Apollo3 Blue) is a capable MCU with integr
 
 | CPU | Flash/Code Memory | RAM | Communication Peripherals | Other Features |
 |---|---|---|---|---|
-| <ul><li>48-MHz Cortex M4F (hardware supports 96MHz boost, but this is not yet implemented)</li><li>Dedicated second BLE core with HCI interface (not user programmable)</li></ul> | 1 MiB Flash memory | 384 kiB SRAM | <ul><li>6x IOM (each can become an SPI or I2C instance)</li><li>2x UART</li><li>1x QSPI/OSPI (not currently supported by Mbed)</li></ol> | <ul><li>ADC with 10 muxed inputs, plus temperature sensor</li><li>16x PWM (see below)</li><li>RTC (not currently supported by Mbed)</li><li>Watchdog Timer</li><li>GPIO with interrupt capability</li></ol>|
+| <ul><li>48-MHz Cortex M4F (hardware supports 96MHz boost, but this is not yet implemented)</li><li>Dedicated second BLE core with HCI interface (not user programmable)</li></ul> | 1 MiB Flash memory | 384 kiB SRAM | <ul><li>6x IOM (each can become an SPI or I2C instance)</li><li>2x UART</li><li>1x QSPI/OSPI (not currently supported by Mbed)</li></ol> | <ul><li>ADC with 10 muxed inputs, plus temperature sensor</li><li>28x PWM (see below)</li><li>RTC (not currently supported by Mbed)</li><li>Watchdog Timer (not currently supported by Mbed)</li><li>GPIO with interrupt capability</li></ol>|
 
 ## Programming and Debugging
 
-### SVL
+### SVL Bootloader
 All supported AMA3B1KK boards (except for `SFE_ARTEMIS_DK`) rely on the SparkFun Variable Loader (SVL) to upload code without a dedicated programmer/debugger. This is described in more detail on the [upload methods page](../upload-methods.md#ambiq-svl), and is easy to set up (it's bundled with Mbed!).
 
 ### Serial Port Reset Circuit
 
-In order for SVL to work, there needs to be a way for the host machine to reset the MCU. This has been implemented by connecting the serial port DTR control line to the MCU reset line via a low-pass filter (see below).
+In order for SVL to work, there needs to be a way for the host machine to reset the MCU. This has been implemented by connecting the serial port DTR control line to the MCU reset line via a high-pass filter (see below).
 
-![Ambiq SVL reset circuit](img/ambiq-svl-reset-circuit.png)
+![Ambiq SVL reset circuit](img/ambiq-svl-reset-circuit.png){: style="width: 50%"}
 
 When the serial port is opened, DTR goes low, and the MCU is pulled into reset. Then, R3 charges the reset line back up, and around 100us later, the AMA3B1KK is released from reset. 
 
@@ -34,7 +34,10 @@ Also, there appears to be a logic glitch that occurs when the chip boots which c
 
 AMA3B1KK is supported by the J-Link and PyOCD debuggers. The former requires J-Link hardware, while the latter will work with any CMSIS-DAP device. Personally, I experienced silky smooth debugging by attaching a PicoProbe to the SWD pins on my RedBoard Artemis (by cutting the debug ribbon cable, stripping the wires, and feeding them through the fine pitch holes).
 
-Also, one board, the [Artemis Development Kit](https://www.sparkfun.com/sparkfun-artemis-development-kit.html), does have a built-in CMSIS-DAP debugger. I'd recommend getting this board if you plan to be debugging code!
+!!! warning
+    Due to the serial port reset circuit described above, opening a serial terminal will reset the chip and likely crash your debug session. Always open your serial terminal *before* starting the debugger.
+
+Also note that one board, the [Artemis Development Kit](https://www.sparkfun.com/sparkfun-artemis-development-kit.html), does have a built-in CMSIS-DAP debugger, so you can simply use PyOCD with it out of the box. I'd recommend getting this board if you plan to be debugging code!
 
 ## Clock Sources
 
