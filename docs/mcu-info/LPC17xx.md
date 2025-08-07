@@ -6,7 +6,7 @@ The LPC1768 was the very first MCU to receive support from Mbed back in 2009, an
 
 _Note: Confusingly, the Mbed LPC1768 dev board is also called the LPC1768.  This seems to be an early naming standard that was later dropped.  On this page I'll say "the dev board" when I specifically mean the Mbed LPC1768 PCB; otherwise I mean the microcontroller itself._ 
 
-Mbed also supports the official NXP dev board for the LPC17xx series of micros, the [LPCXpresso LPC1769](https://www.nxp.com/part/OM13085) (OM13085UL). This board is similar to the Mbed LPC1768 in terms of features (includes an Ethernet PHY and a debug interface onboard), and it even has a compatible pin layout. 
+Mbed also supports the official NXP dev board for the LPC17xx series of micros, the [LPCXpresso LPC1769](https://www.nxp.com/part/OM13085) (OM13085UL), via the `LPCXPRESSO_LPC1769` Mbed target. This board is similar to the Mbed LPC1768 in terms of features (includes an Ethernet PHY and a debug interface onboard), and it even has a compatible pin layout. 
 
 ## Feature Overview
 | CPU | Flash/Code Memory | RAM | Communication Peripherals | Other Features |
@@ -115,6 +115,17 @@ Currently, Mbed only has targets for the "top of the line" MCUs, which are the L
 To the best of my knowledge, Mbed should mostly "just work" on these chips so long as user code does not actually use the features that don't exist. For example, if the chip only has 2 I2Cs, trying to use the third I2C would likely result in a crash, but if you avoid using it, you should be good. Or, on chips with less than 512 k of flash, you should be good as long as your program size doesn't exceed the actual amount of flash on the chip (and you don't use FlashIAP to write to nonexistent areas of flash).
 
 One exception, however, is that some chips, such as the LPC1764, have less than the normal 64k of SRAM. This presents an issue for the normal Mbed memory configuration, which uses all 64k as heap space and uses space from the second RAM bank for Ethernet buffers. If you really want to use one of the chips with 32k (or less) of RAM, a custom target and modifications to the Mbed linker script would be needed, and Ethernet is likely impossible.
+
+### CPU Clock Configuration
+Most LPC17xx MCUs support a maximum CPU clock of 100MHz. However, Mbed OS clocks these MCUs at 96MHz because it's difficult to support USB otherwise (as the PLL0 clock needs to be a factor of 48MHz).
+
+The LPC17x9 MCUs, however, support a higher clock rate of 120MHz. You can enable this higher clock speed with the following mbed_app.json option:
+
+```json
+"target.lpc17xx-core-clk-120mhz": true
+```
+
+This option is used by default on the `LPCXPRESSO_LPC1769` board. In my testing, it can also be used as an overclock for the standard chips, if you are feeling up to it!
 
 ## Datasheets
 - [Mbed LPC1768 dev board schematic](http://mbed.org/media/uploads/chris/mbed-005.1.pdf) (note, this is an HTTP download, so you may have to copy the URL to a new tab to get it to download)
