@@ -102,3 +102,9 @@ The AMA3B1KK has a several options for analog voltage references: an internal 1.
 Currently, Mbed OS hardcodes usage of the 2V reference to provide the maximum possible analog range. This means that analog in pins can **only measure voltages between 0V and 2V**, not the full 3.3V I/O voltage range!
 
 Also note that ADC_REF is not pinned out on the Artemis module, so it's impossible to use the external ADC reference with this hardware.
+
+### GPIO Pullups and Pulldowns
+
+Every GPIO pin other than IO_20 has an optional pullup resistor. This resistor has a real value between 13 and 27 kOhms. Note that some specific pins have four different pullup resistor options, but the other options are not currently supported by Mbed.
+
+IO_20, on the other hand, has the option for a pulldown resistor and is the only IO that does. This resistor has a real value between 26 and 40 kOhms.

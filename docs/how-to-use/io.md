@@ -27,6 +27,8 @@ DigitalOut myDefaultHighPin(PA_0, 1); // Creates another digital out that defaul
 
     Also, documentation for your target may provide a list of the valid pin names and what functions they offer.
 
+    In this page we will be using STM32-style pin names (e.g. PA_0), but there are other styles in use by different targets.
+
 `DigitalOut` provides the `write()` function which writes a value to a pin:
 
 ```cpp
@@ -56,7 +58,55 @@ while(true)
     Also note that the LED might be active high (turns on when the pin is high) or active low (turns on when the pin is low), so you will either need to consult your board schematic or do an experiment to determine this.
 
 ### Digital Inputs (`DigitalIn`)
+
+What if you want to read the value of a pin, instead of writing it? That's where [DigitalIn](https://mbed-ce.github.io/mbed-os/classmbed_1_1_digital_in.html) comes in. This class, once instantiated, allows access to the value of a pin. 
+
+```cpp
+DigitalIn myInput(PA_1);
+if(myInput.read()) {
+    printf("Pin is high!\n");
+}
+else {
+    printf("Pin is low!\n"); 
+}
+```
+
+`DigitalIn` also implements a cast operator to integer, so it can be directly used in many contexts that expect an integer or boolean value, such as an if statement:
+
+```cpp
+if(myInput) {
+    ...
+}
+```
+
 #### Pullups/Pulldowns
+
+Pullup and pulldown resistors are very useful to control the state of an input when nothing is directly driving it. For instance, suppose you connected an I/O pin of your Mbed board to a button, with the other side of the button connected to ground.
+
+![button connected to ground with no pullup](img/button-circuit-nopullup.png){: style="width: 50%"}
+
+When the button is pressed, the MCU pin will be connected to ground. But what about when the button is NOT pressed? In this case, the MCU pin will be floating, and its state will not be super well defined. In a naive circuit, the pin will just pick up random noise from the circuit and the environment, and its state will constantly change. To prevent this, some MCUs implement a pulldown/pullup/keeper circuit on I/O pins by default, so you won't get the random noise, but the circuit may still not work as intended.
+
+To fix this, we need to "pull up" the MCU pin to the I/O voltage with a resistor:
+
+![button connected to ground with a pullup](img/button-circuit-pullup.png){: style="width: 50%"}
+
+This ensures that if the button is not pressed, the pin will read a high value.
+
+As this is a very common problem to run into, most MCU manufacturers include built-in pullup and pulldown resistors on each pin, so that you don't need a physical one on your board. 
+
+In Mbed, these resistors can be enabled by passing a pin mode value to the second argument of the DigitalIn constructor, or by calling the `mode()` function after creating the pin.
+ 
+```cpp
+DigitalIn inputWithPullup(PA_2, PullUp);
+
+DigitalIn inputWithPulldown(PA_3);
+inputWithPulldown.mode(PullDown);
+```
+
+!!! warning "Resistance Values"
+    The actual values of the pullup and pulldown resistors vary by target MCU, so consult your target documentation and the MCU datasheet for the actual values. In general, these resistors have very large tolerances, so they should not be used in situations where an exact resistance value is needed for the circuit to work.
+
 ### Bidirectional I/O (`DigitalInOut`)
 #### Open-Drain Operation
 ### Bus I/O
