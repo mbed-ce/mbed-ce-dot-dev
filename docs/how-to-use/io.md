@@ -108,7 +108,41 @@ inputWithPulldown.mode(PullDown);
     The actual values of the pullup and pulldown resistors vary by target MCU, so consult your target documentation and the MCU datasheet for the actual values. In general, these resistors have very large tolerances, so they should not be used in situations where an exact resistance value is needed for the circuit to work.
 
 ### Bidirectional I/O (`DigitalInOut`)
+
+I/O pins are fully capable of changing their direction at runtime, and can be switched from an input (potentially w/ a pullup) to an output at any time. This functionality can be accessed via the [DigitalInOut](https://mbed-ce.github.io/mbed-os/classmbed_1_1_digital_in_out.html) class.
+
+This class provides access to the full GPIO API and allows controlling the full state of one GPIO pin. For example, suppose two digital pins are connected together with a wire. We can use `DigitalInOut` to send values back and forth:
+
+```cpp
+DigitalInOut inOut1(PA_1); // defaults to input with default pullup
+DigitalInOut inOut2(PA_2, PIN_OUTPUT, PullDefault, 0); // Set as output low
+
+inOut1.read(); // returns 0
+
+inOut2 = 1;
+inOut1.read(); // returns 1
+
+// Switch directions of pins. Switch the output pin first so we don't have two output pins fighting with each other.
+inOut2.input();
+inOut1.output();
+inOut1 = 1;
+
+inOut2.read(); // returns 1
+```
+
+!!! warning "Digital Glitches"
+    Currently Mbed does not provide a single function to change the direction of a pin and set its value in a glitch-free manner. So, for example, if changing a pin from an input to a logic high output, the pin may change from input to logic low output for a few microseconds, and then change to logic high.
+
+    Fixing this issue is something we'd love to work on in the future.
+
 #### Open-Drain Operation
+
+As you may have realized, "normal" bidirectional pins aren't great for communicating information between multiple chips, because there needs to be some kind of prior agreement on who is driving the pin at any one time. Otherwise, you could cause a potentially damaging short by having one chip drive the pin high and another drive it low. 
+
+Open-drain is a convention for I/O pins that solves this problem. When a pin is in open-drain mode, it has only two states. Writing a 1 to the pin sets it to high-impedance mode (potentially with a weak pullup), and writing a 0 to the pin writes a logic low to it. When the pin is read, it returns the electrical state rather than the configured state, so if you are writing a 1 but see the value as 0, then you know that somebody else is setting it to 0.
+
+This convention (plus an external pullup resistor) nicely solves the problem of high versus low conflicts. If all connected chips are writing a 1, the signal stays as logic high. If one or more chip writes a 0, then the signal changes to logic low. And no matter what, you can never create a short no matter which devices are outputting high and low.
+
 ### Bus I/O
 ### Interrupts
 ## Analog Inputs
