@@ -120,6 +120,7 @@ DigitalInOut inOut2(PA_2, PIN_OUTPUT, PullDefault, 0); // Set as output low
 inOut1.read(); // returns 0
 
 inOut2 = 1;
+wait_us(10); // Give it some time for the signal to propagate
 inOut1.read(); // returns 1
 
 // Switch directions of pins. Switch the output pin first so we don't have two output pins fighting with each other.
@@ -127,6 +128,7 @@ inOut2.input();
 inOut1.output();
 inOut1 = 1;
 
+wait_us(10);
 inOut2.read(); // returns 1
 ```
 
@@ -143,14 +145,68 @@ Open-drain is a convention for I/O pins that solves this problem. When a pin is 
 
 This convention (plus an external pullup resistor) nicely solves the problem of high versus low conflicts. If all connected chips are writing a 1, the signal stays as logic high. If one or more chip writes a 0, then the signal changes to logic low. And no matter what, you can never create a short no matter which devices are outputting high and low.
 
+Here's an example of using DigitalInOut in open drain mode to communicate between two pins that are connected together:
+```cpp
+DigitalInOut pin1(PA_1, PIN_OUTPUT, OpenDrain, 1);
+DigitalInOut pin2(PA_2, PIN_OUTPUT, OpenDrain, 1);
+
+// With neither pin set low, we should see both pins reading high
+pin1.read(); // returns 1
+pin2.read(); // returns 1
+
+// Outputting a low on one open drain pin should bring both pins low
+pin1 = 0;
+wait_us(10); // Give it some time for the signal to propagate
+pin1.read(); // returns 0
+pin2.read(); // returns 0
+```
+
+!!! warning "Open-Drain Pullup Resistors"
+    On some targets, the OpenDrain pin mode automatically enables a pullup resistor. On other targets, you would need to connect an external pull-up resistor to run this example.
+
 ### Bus I/O
+
+If you need to work with multiple I/O pins at once, Mbed provides the [BusIn](https://mbed-ce.github.io/mbed-os/classmbed_1_1_bus_in.html), [BusOut](https://mbed-ce.github.io/mbed-os/classmbed_1_1_bus_out.html), and [BusInOut](https://mbed-ce.github.io/mbed-os/classmbed_1_1_bus_in_out.html). These classes work nearly identically to `DigitalIn`, `DigitalOut`, and `DigitalInOut` except that they work with multiple pins at a time (up to 15).
+
+Read and write operations return binary numbers, with bit 0 corresponding to the first pin passed in to the constructor, bit 1 corresponding to the second pin, etc.
+
+```cpp
+BusOut myBus(PA_0, PA_1, PB_0, PB_1)
+myBus = 0b1010; // Writes a high to PB_1 and PA_1 and a low to PB_0 and PA_0
+```
+
+!!! note "Binary Literals"
+    This example uses a relatively new feature of C++, which is the ability to write out binary numbers in code using the 0b prefix. `0b1010` is equivalent to 0xA or 10.
+
+Bus I/O is useful for implementing parallel interfaces, where the bits of a number are transferred via a group of GPIO lines.
+
+!!! warning "Limitations of Bus I/O"
+    The Bus[In/Out] classes are not "true" multi-pin I/O -- they are implemented as pure wrappers around arrays of Digital[In/Out] classes. This is convenient because they can work with any pins, regardless of what I/O port the pins are on. However, this means that all the pins aren't written or read at the exact same time.
+
+    This means that the Bus I/O classes are not currently suitable for implementing high speed parallel busses (~MHz clock rate). There are some options to fix this in Mbed, but for now if you need this capability you'll have to access the I/O registers directly.
+
 ### Interrupts
 ## Analog Inputs
+If you want to read an analog signal on your target board, you'll need to do things a bit differently. Analog inputs can be read using the [AnalogIn](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_in.html) class, which is a wrapper around your chip's Analog-Digital Converter (ADC) peripheral.
+
+We'll first briefly go over how ADCs work and what you should be aware of when using them, and then we'll show how to actually use the ADC in Mbed!
 ### ADC Basics
-- ADC types
-- Voltage references
-- Accuracy/ENOB
-- Conversion time
+#### Bits
+ADCs are often referred to as n-Bit, e.g. 12-bit or 16-bit. This refers to how many bits of binary number your ADC produces. A 12-bit ADC can produce numbers between 0 and 4095 (2^12-1), and a 16-bit ADC can produce numbers between 0 and 65535 (2^16-1). 
+
+Broadly speaking, an ADC with more bits has higher resolution and produces a more precise output (though that's not the complete picture, as we'll see below).
+
+#### ADC Types
+There are three types of ADCs in common usage: Flash, Successive Approximation Register (SAR), and Sigma-Delta.
+
+Sigma-Delta ADCs are the most accurate, but are more complicated and are almost never seen in microcontrollers.
+
+Flash ADCs work by ess
+
+#### Voltage References
+#### Accuracy/ENOB
+#### Conversion Time
+#### Aliasing
 ### Using `AnalogIn`
 ## Analog Outputs
 ### DAC Basics
