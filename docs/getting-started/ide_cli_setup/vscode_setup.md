@@ -28,35 +28,35 @@ You can watch this part in video version - [Youtube guide](https://youtu.be/9ZDH
           // By using this setting, each variant has its own build dir.
           "cmake.buildDirectory": "${workspaceFolder}/build/${variant:board}-${variant:buildType}",
 
-          "cmake.generator": "Ninja"
+          "cmake.generator": "Ninja",
+
+          // This reconfigures the UI to add variant & build target selection to the bottom bar, and to hide 
+          // features not used in embedded development.
+          "cmake.configureOnOpen": false,
+          "cmake.options.statusBarVisibility": "compact",
+          "cmake.options.advanced": {
+              "build": {
+                  "statusBarVisibility": "visible",
+                  "inheritDefault": "hidden"
+              },
+              "launch": {
+                  "statusBarVisibility": "visible",
+                  "inheritDefault": "hidden"
+              },
+              "debug": {
+                  "statusBarVisibility": "visible",
+                  "inheritDefault": "hidden"
+              },
+              "cpack": {
+                  "statusBarVisibility": "hidden",
+                  "inheritDefault": "hidden"
+              },
+              "workflow": {
+                  "statusBarVisibility": "hidden",
+                  "inheritDefault": "hidden"
+              }
+         }
       }
-      ```
-      Optionally, you can add the below into the workspace or user `settings.json` file for more comfortable work. This will prevent CMake auto configuration directly after VS Code app starts and set the CMake bar to a more friendly look. 
-      ```json
-         "cmake.configureOnOpen": false,
-         "cmake.options.statusBarVisibility": "compact",
-         "cmake.options.advanced": {
-            "build": {
-               "statusBarVisibility": "visible",
-               "inheritDefault": "hidden"
-            },
-            "launch": {
-               "statusBarVisibility": "visible",
-               "inheritDefault": "hidden"
-            },
-            "debug": {
-               "statusBarVisibility": "visible",
-               "inheritDefault": "hidden"
-            },
-            "cpack": {
-               "statusBarVisibility": "hidden",
-               "inheritDefault": "hidden"
-            },
-            "workflow": {
-               "statusBarVisibility": "hidden",
-               "inheritDefault": "hidden"
-            }
-         } 
       ```
 
    2. If the project is new or does not already contain a `cmake-variants.yaml` file, you will need to create one in your project's root directory as below.

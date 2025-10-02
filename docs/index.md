@@ -134,8 +134,8 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 | Nuvoton | M48x, M46x, M45x, Nano130, NUC472, M2354, M251, M261 |
 | Raspberry Pi | RP2040 |
 | Ambiq Micro | Apollo3 |
-| Infineon (formerly Cypress) | PSOC 62\*, PSOC 64\* |
-| Maxim | MAX32620\*, MAX32630\*, MAX32660\*, MAX32670\* |
+| Infineon (formerly Cypress) | PSOC 62, PSOC 64\* |
+| Maxim | MAX32620\*, MAX32630\*, MAX32660\*, MAX32670 |
 | Nordic Semiconductor | nRF52832, nRF52840 |
 | Renesas | RZ/A1xx\*, RZ/A2xx\* |
 | Silicon Labs | EFM32GG\* |

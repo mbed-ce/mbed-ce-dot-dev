@@ -53,6 +53,15 @@ Base address for uploading code, i.e. the memory address where the first byte of
 
 *Note:* Unlike bin files, hex files contain a base address, which appears to be set based on the linker script. If the `output_ext` property in JSON is set to hex, uploading will use hex files instead of bin files, so the value of this parameter may not be respected by certain upload methods (e.g. J-Link). More investigation into this area may be needed.
 
+> MBED_DEBUG_CORE_INDEX
+
+**Type:** Integer
+
+For multicore targets, this gives the index of the core that GDB should connect to. If unset, defaults to core 0. 
+
+See [here](https://pyocd.io/docs/multicore_debug.html) for more info about multicore debugging in PyOCD.
+
+
 ## Common Options (for all methods)
 
 > MBED_GDB_PORT
@@ -186,6 +195,18 @@ This config option specifies all OpenOCD commands needed to configure the progra
 **Type:** String (CMake version range)
 
 Acceptable version range of OpenOCD. This may be a single version (e.g. "0.12"), in which case it is treated as a minimum, or a versionMin...<versionMax constraint, e.g. "0.12...<0.13", to accept any 0.12.x version but not 0.13 or higher.
+
+> OPENOCD_GDB_RESET_SEQUENCE
+
+**Type:** List of Strings
+
+Sequence of GDB commands that should be sent to cause a chip reset and halt. This defaults to just
+
+```
+monitor reset halt
+```
+
+but can be overridden to use chip-specific commands.
 
 ## STM32Cube
 
