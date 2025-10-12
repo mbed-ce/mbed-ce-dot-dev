@@ -6,32 +6,34 @@ This page explains how to set up ARM GCC and other tools on your computer so tha
 
 Note: You can also watch this in video version - [Youtube guide](https://youtu.be/ubf6ODHOHEs)
 
-1. Get CMake by downloading the installer from [here](https://cmake.org/download/). If you already have CMake installed, make sure it's at least version 3.16.  Make sure to select "Add CMake to the system PATH for all users" in the installer!
-2. Download the latest Ninja Build binary from [here](https://github.com/ninja-build/ninja/releases) (grab ninja-win.zip).  Then, you need to extract the exe file to somewhere on your PATH.  Note: It might be convenient to put it into the CMake bin folder (`C:\Program Files\CMake\bin`) since the CMake installer has already added that to your PATH.
-3. Go to ARM's [toolchain download page](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) and download the exe installer under "Windows (mingw-w64-x86_64) hosted cross toolchains" &gt; "AArch32 bare-metal target (arm-none-eabi)".  Then, execute it and go through the installer, making sure to check the "Add path to environment variable" box!
+1. Install CMake and Ninja. You can download these manually ([here](https://cmake.org/download/) for CMake and [here](https://github.com/ninja-build/ninja/releases) for Ninja), but the easiest way is to use WinGet. To install them with winget, open an administrator command prompt, then run
+    ```
+    > winget install Kitware.CMake Ninja-build.Ninja --scope machine
+    ```
+
+2. Go to ARM's [toolchain download page](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) and download the exe installer under "Windows (mingw-w64-x86_64) hosted cross toolchains" &gt; "AArch32 bare-metal target (arm-none-eabi)".  Then, execute it and go through the installer, making sure to check the "Add path to environment variable" box!
+
+    ![ARM toolchain download link](img/arm-toolchain-download.png)
 
     ![ARM toolchain installer](img/arm-toolchain-installer.png)
 
-4. If you don't already have it, install [Git](https://git-scm.com/). It is important for work with Github repos - creating, importing or cloning of projects and libraries.
+3. If you don't already have it, install [Git](https://git-scm.com/). It is important for work with Github repos - creating, importing or cloning of projects and libraries.
 
-5. If you don't already have it, install [Python 3](https://www.python.org/downloads/) so that you can run python from the command line.  
+4. If you don't already have it, install Python 3 so that you can run python from the command line. The easiest way to do this is to use winget to install python install manager, via an administrator command prompt:
+    ```
+    > winget install --scope machine Python.PythonInstallManager
+    ```
+    Then, in a *newly opened, non-administrator* terminal, you can install Python and make the new version the default. Example for 3.13:
+    ```
+    > py install 3.13
+    > setx PYTHON_MANAGER_DEFAULT 3.13
+    ```
+    
+    **Important!** It is recommended not to install the latest Python release if it's less than a couple months old. This will help you to avoid potential incompatibility issues with some dependencies later, as not every Python package publishes binaries right away for new releases. As of this writing (Oct 2025), use of version 3.13 or older is recommended.
 
-    > **IMPORTANT!** - It is recommended not to install the latest Python release if it's less than a couple months old. This will help you to avoid potential incompatibility issues with some dependencies later as not every Python package publishes binaries right away for new releases.
+5. Add Python to your path. Search for "Edit environment variables for your account" in the start menu and click on the top result. Then find and edit "Path" in the top pane. Finally, add `C:\Users\<YourUsername>\AppData\Local\Python\bin` to the list of path entries. When done, it should look like: 
 
-    > **WARNING!** - The Windows Store version of python is not recommended.  To make sure Python gets installed correctly, follow the install process below:
-
-     On the first screen, select the "Add Python 3.x to PATH" checkbox, then click "Customize installation"
-     ![Python installer screen 1](img/windows-python-installer-screen1.png)
-
-    Click Next on the second screen.
-
-    ![Python installer screen 2](img/windows-python-installer-screen2.png)
-
-    On the third screen, check "Install for all users".  Also, make sure "Add Python to environment variables" is checked.
-  
-    ![Python installer screen 3](img/windows-python-installer-screen3.png)
-   
-    The installer should now run and complete.  
+    ![Path dialog](img/python-in-user-path.png)
 
 6. Reboot your machine so that the changes to your PATH are applied. Then the toolchain should be set up!
 
