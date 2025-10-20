@@ -140,7 +140,6 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 | Renesas | RZ/A1xx\*, RZ/A2xx\* |
 | Silicon Labs | EFM32GG\* |
 | Analog Devices | ADuCM4050\*, ADuCM3029\* |
-| Giga Devices | GD32F3\*, GD32F4\* |
 | Samsung | S1SBP6A\* |
 | Toshiba | TX04 M460\*, TXZ+ M4G\*, TXZ+ M4K\*, TXZ+ M4N\* |
 
