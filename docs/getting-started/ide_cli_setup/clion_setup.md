@@ -5,6 +5,7 @@ This page will show you how to take an existing Mbed CE project and use it with 
 Note: CLion is a paid product for commercial use, costing about $100 yearly (there's a subscription, but if you cancel it you can keep using your current version forever). However, it is free for non-commercial use. There is also a free 30-day trial available for everyone. 
 
 I (Jamie) can say that CLion is the best C++ IDE I've personally used, and I highly recommend giving it a shot. The three main advantages of CLion over VS Code are:
+
 - Much faster searching for usages and references, as CLion indexes everything in advance
 - More intelligent source code analysis - CLion is more confident in determining whether source code is correct and gives you more options for refactoring and analyzing it
 - Ability to have multiple build configurations active at one time, whereas VS Code requires manually switching between them

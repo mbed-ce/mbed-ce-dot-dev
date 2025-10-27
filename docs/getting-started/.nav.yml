@@ -1,4 +1,5 @@
 nav:
+  - platformio-setup.md
   - toolchain-install.md
   - creating-a-project.md
   - IDE/CLI Setup: ide_cli_setup
