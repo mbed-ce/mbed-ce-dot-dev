@@ -140,7 +140,6 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 | Renesas | RZ/A1xx\*, RZ/A2xx\* |
 | Silicon Labs | EFM32GG\* |
 | Analog Devices | ADuCM4050\*, ADuCM3029\* |
-| Samsung | S1SBP6A\* |
 | Toshiba | TX04 M460\*, TXZ+ M4G\*, TXZ+ M4K\*, TXZ+ M4N\* |
 
 \* Denotes device families that have not been tested yet by the Mbed CE maintainers. Device families with this mark do not have upload method support and may not have been tested since the vendor's original porting effort, so they are more likely to have issues.
