@@ -7,6 +7,7 @@ nav:
   - Getting Started: getting-started
   - upload-methods.md
   - How to Use Mbed: how-to-use
+  - API Reference: api-reference
   - MCU-Specific Information: mcu-info
   - contributing.md
   - maintainers.md

@@ -187,6 +187,43 @@ Bus I/O is useful for implementing parallel interfaces, where the bits of a numb
 
 ### Interrupts
 
+But what if you want to just get a notification only when a pin changes state, without having to constantly check it? Mbed offers the [`InterruptIn`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_interrupt_in.html) class for this purpose. Just like a DigitalIn instance, an InterruptIn is constructed with a pin and optionally a PinMode, and can be used to read the pin's value. However, InterruptIn also provides the ability to set callbacks for when the pin rises and falls.
+
+!!! note "Pin Support for Interrupts"
+    For InterruptIn to work, the pin you pass needs to support interrupts. _Most_ pins of _most_ MCUs do support interrupts, but not _every_ pin of _every_ MCU. For example, on LPC1768, the P1_xx pins do not support interrupts.
+
+For example, suppose you wanted to count how many times a button is pressed. You could do that like this:
+```cpp
+#include <mbed.h>
+#include <atomic>
+
+std::atomic<unsigned int> pressedCount = 0;
+
+void onRisingEdge() 
+{
+    ++pressedCount;
+}
+
+int main()
+{
+    InterruptIn buttonIn(BUTTON1, PullUp); // note: assumes that the button needs a pullup, which may or may not be the case depending on your board
+    buttonIn.rise(onRisingEdge);
+
+    while(true)
+    {
+        ThisThread::sleep_for(1s);
+        printf("Press count: %u\n", pressedCount.load());
+    }
+}
+```
+
+In this example, we pass the `onRisingEdge` function as a callback to the interrupt in. It will then call this function each time the pin has a rising edge (a transition from low to high).
+
+!!! note "Callbacks"
+    To pass the function to the InterruptIn, Mbed uses a type called `mbed::Callback`. This is a function pointer type, and works a bit similarly to `std::function` (but suited for embedded usage). Callbacks can also be created from class member functions and lambdas.
+
+!!! warning "Debouncing"
+    If using an InterruptIn to read a button, you will need some form of debouncing circuit between the button and the MCU. This is because mechanical buttons are very noisy and can generate multiple edges when pressed. If you don't filter these out, these edges could cause the interrupt to trigger constantly and monopolize your CPU!
 
 ## Analog Inputs
 If you want to read an analog signal on your target board, you'll need to do things a bit differently. Analog inputs can be read using the [AnalogIn](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_in.html) class, which is a wrapper around your chip's Analog-Digital Converter (ADC) peripheral.
