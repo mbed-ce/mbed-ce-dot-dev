@@ -129,7 +129,7 @@ Below is the list of supported microcontroller families, by manufacturer. In gen
 
 | Manufacturer | MCU Families |
 |--------------|--------------|
-| ST Microelectronics | F0\*, F1\*, F2\*, F3\*, F4, F7, G0\*, G4\*, H5, H7, L0\*, L1\*, L4, L5\*, U5, WB\*, WL\*|
+| ST Microelectronics | F0\*, F1\*, F2\*, F3\*, F4, F7, G0\*, G4\*, H5, H7, L0\*, L1\*, L4, L5\*, U5, WB\*, WL|
 | NXP (incl. Freescale) | i.MXRT 105x/6x, i.MXRT 117x\*, K22F\*, KL25Z, KL43Z\*, KW43Z\*, KL46Z\*, K64F, K66F\*, K82F\*, LPC1114\*, LPC17xx, LPC54114\*, LPC546xx|
 | Nuvoton | M48x, M46x, M45x, Nano130, NUC472, M2354, M251, M261 |
 | Raspberry Pi | RP2040 |
