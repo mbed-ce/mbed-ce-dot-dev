@@ -4,7 +4,7 @@ In software development, it is useful to be able to pass a reference to your own
 
 Unfortunately, C++ makes callbacks a bit more difficult than necessary, especially when you want to pass in a member function of a class (member function pointers have a fundamentally different type than regular global function pointers). In desktop C++, there exists the `std::function` class to wrap this complexity, but this class isn't a good fit for embedded development -- it pulls in a large amount of code from the standard library and uses dynamic allocation.
 
-This is where the `mbed::Callback` class comes in -- it provides a much more lightweight way to wrap C/C++ function pointers that is compatible with embedded development.
+This is where the [`mbed::Callback`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_callback_3_01_r_07_arg_ts_8_8_8_08_4.html) class comes in -- it provides a much more lightweight way to wrap C/C++ function pointers that is compatible with embedded development.
 
 ## Overview of Callback
 

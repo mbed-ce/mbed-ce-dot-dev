@@ -1,3 +1,4 @@
 nav:
- - io.md
+ - io-basics.md
+ - analog-io.md
  - i2c.md

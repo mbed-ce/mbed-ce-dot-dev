@@ -1,4 +1,4 @@
-# I/O Pins
+# I/O Pin Basics
 
 Inputs and outputs, usually shortened to I/O, are the bread and butter of microcontroller functionality. Sure, you have your more complex busses and signals like I2C and PWM, but, at the end of the day, a lot of times you just need to read or write a signal on a pin.
 
@@ -190,7 +190,7 @@ Bus I/O is useful for implementing parallel interfaces, where the bits of a numb
 But what if you want to just get a notification only when a pin changes state, without having to constantly check it? Mbed offers the [`InterruptIn`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_interrupt_in.html) class for this purpose. Just like a DigitalIn instance, an InterruptIn is constructed with a pin and optionally a PinMode, and can be used to read the pin's value. However, InterruptIn also provides the ability to set callbacks for when the pin rises and falls.
 
 !!! note "Pin Support for Interrupts"
-    For InterruptIn to work, the pin you pass needs to support interrupts. _Most_ pins of _most_ MCUs do support interrupts, but not _every_ pin of _every_ MCU. For example, on LPC1768, the P1_xx pins do not support interrupts.
+    For InterruptIn to work, the pin you pass needs to support interrupts. _Most_ pins of _most_ MCUs do support interrupts, but not _every_ pin of _every_ MCU. For instance, on LPC1768, the P1_xx pins do not support interrupts.
 
 For example, suppose you wanted to count how many times a button is pressed. You could do that like this:
 ```cpp
@@ -206,7 +206,8 @@ void onRisingEdge()
 
 int main()
 {
-    InterruptIn buttonIn(BUTTON1, PullUp); // note: assumes that the button needs a pullup, which may or may not be the case depending on your board
+    // note: This assumes that the button needs a pullup -- some boards may need a pull down or something else!
+    InterruptIn buttonIn(BUTTON1, PullUp);
     buttonIn.rise(onRisingEdge);
 
     while(true)
@@ -222,54 +223,8 @@ In this example, we pass the `onRisingEdge` function as a callback to the interr
 !!! note "Callbacks"
     To pass the function to the InterruptIn, Mbed uses a type called `mbed::Callback`. This is a function pointer type, and works a bit similarly to `std::function` (but suited for embedded usage). Callbacks can also be created from class member functions and lambdas.
 
+    See [this page](../api-reference/platform/Callback.md) for more info on callbacks.
+
 !!! warning "Debouncing"
-    If using an InterruptIn to read a button, you will need some form of debouncing circuit between the button and the MCU. This is because mechanical buttons are very noisy and can generate multiple edges when pressed. If you don't filter these out, these edges could cause the interrupt to trigger constantly and monopolize your CPU!
+    If using an InterruptIn to read a button in a real project, you will need some form of debouncing circuit between the button and the MCU. This is because mechanical buttons are very noisy and can generate multiple edges when pressed. If you don't filter these out, these edges could cause the interrupt to trigger constantly and monopolize your CPU!
 
-## Analog Inputs
-If you want to read an analog signal on your target board, you'll need to do things a bit differently. Analog inputs can be read using the [AnalogIn](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_in.html) class, which is a wrapper around your chip's Analog-Digital Converter (ADC) peripheral.
-
-We'll first briefly go over how ADCs work and what you should be aware of when using them, and then we'll show how to actually use the ADC in Mbed!
-### ADC Basics
-
-#### Bits
-ADCs are often referred to as n-Bit, e.g. 12-bit or 16-bit. This refers to how many bits of binary number your ADC produces. For example, a 12-bit ADC can produce numbers between 0 and 4095 (2^12-1), and a 16-bit ADC can produce numbers between 0 and 65535 (2^16-1). 
-
-Broadly speaking, an ADC with more bits has higher resolution and produces a more precise output (though that's not the complete picture, as we'll see below).
-
-#### ADC Types
-There are three types of ADCs in common usage: Sigma-Delta, Flash, and Successive Approximation Register (SAR).
-
-##### Sigma-Delta
-
-Sigma-Delta ADCs have the highest resolution of all types, but are relatively slow to operate and are almost never seen integrated into microcontrollers.
-
-##### Flash
-
-Flash ADCs work by essentially comparing the value against 2^n analog voltages using 2^n comparators for n bits. As you might imagine, this is the fastest type of ADC as it only takes one clock cycle to go from analog value to digital code. However, the circuitry required for a flash ADC grows exponentially with the number of bits, so they are rarely seen in resolutions above 8 bits. (more info [here](https://www.allaboutcircuits.com/textbook/digital/chpt-13/flash-adc/))
-
-##### Successive Approximation Register (SAR)
-
-![SAR ADC block diagram](https://www.mathworks.com/help/msblks/ref/model_sar_adc_arch.png)
-
-SAR ADCs consist of a sample-and-hold circuit, a digital-analog converter, and a comparator, and they work using essentially a binary search. The sample-and-hold circuit latches the incoming analog value and keeps it stable. Then, a series of voltages are generated by the digital-analog converter and compared against the input. It starts with half the reference voltage, then 0.25x or 0.75x the reference voltage, etc. From there, the ADC does a binary search in order to narrow down the analog voltage to the nearest bit of the output code.
-
-SAR ADCs are a good compromise option as they can be made with fairly high resolution without being too complex -- resolutions of 12 to 16 bits are common, which is enough for most real analog signals. Increasing the resolution (which is frequently software-configurable) does increase the conversion time, but SAR ADCs can still operate quite quickly -- sample rates between 100kHz and 10MHz are common.
-
-The large majority of Mbed microcontrollers that have ADCs use SAR ADCs, so it's important to understand both the hardware and the software configuration in order to see how accurate your analog inputs really are.
-
-#### Voltage References
-
-#### Accuracy/ENOB
-
-#### Conversion Time
-#### Aliasing
-### Using `AnalogIn`
-## Analog Outputs
-### DAC Basics
-
-!!! note "Don't confuse analog outputs with PWM!"
-    It's common to confuse a "true" analog output (a DAC) with a PWM output. These are not the same thing! A true analog output outputs an actual analog voltage, while a PWM output outputs a square wave that averages out into an analog voltage. It is possible to approximage an analog voltage using a PWM output, but you would need an external filtering circuit, and this comes with other downsides (limited current sourcing capability, voltage ripple, etc). Meanwhile, an actual DAC just gives you an exact analog voltage, no muss, no fuss.
-
-    And yet... the Arduino framework continues to mislead people about this to this day by referring to setting a PWM as an "[analog write](https://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/)".
-
-### Using `AnalogOut`
