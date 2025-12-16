@@ -94,7 +94,7 @@ auto lambdaHandler = [&](uint8_t code, char const * message) {
 };
 ```
 
-We can do that by just passing in the lambda variable:
+We can do that by just passing in the lambda variable to the callback constructor:
 
 ```cpp
 addEventHandler(mbed::callback(lambdaHandler));
@@ -171,10 +171,13 @@ void passEventToOtherClass(SomeOtherClass & instance, uint8_t code) {
 You could do this with a lambda like so: 
 
 ```cpp
-EventHandler handler([&](uint8_t code, char const * message) { return passEventToOtherClass(otherInstance, code); });
+auto handler = [&](uint8_t code, char const * message) { 
+    return passEventToOtherClass(otherInstance, code); 
+};
+addEventHandler(mbed::callback(handler));
 ```
 
-## Example
+## Worked Example
 
 Suppose you have an ADC class which reads data from hardware, and you want that data to be passed to a low-pass filter each time a new sample is available. There are multiple ADCs and multiple low-pass filters, so you cannot use global functions. This could be implemented in the following manner:
 

@@ -31,18 +31,53 @@ SAR ADCs are a good compromise option as they can be made with fairly high resol
 
 The large majority of Mbed microcontrollers that have ADCs use SAR ADCs, so it's important to understand both the hardware and the software configuration in order to see how accurate your analog inputs really are.
 
-#### Voltage References
+#### Voltage References and ADC Readings
+
+All ADCs have a reference voltage, which is generally the highest analog voltage that you expect to work with in a system. All ADC readings are generated as a percent of this reference voltage. Some microcontrollers have a dedicated reference voltage input, while others use the analog VDD voltage, or an internally generated reference.
+
+For example, suppose you have a 12-bit ADC and it produces a reading of 1000 counts. You'd first convert this to a percentage by dividing `1000 / (2^12 - 1)`, giving 0.244 (24.4%). Then, you would multiply that by the reference voltage to obtain the actual input voltage. If your reference voltage is 3.3V, this ADC reading would convert to about 0.805V. 
+
+!!! note "Reference Voltage Value"
+    On Mbed, the value of the reference voltage is often available through the `MBED_CONF_TARGET_DEFAULT_ADC_VREF` definition, though this is not set up for every target yet.
+
+    If you are creating a custom target, be sure to override the `target.default-adc-vref` setting based on the board so that Mbed knows what the reference voltage is!
 
 #### Accuracy/ENOB
 
+There are many different ways to express ADC accuracy, and a full description would be too long for this document. However, it is important to understand the basics in order to determine if the onboard ADC on your Mbed target is appropriate for your needs. To that end, there are at least three concepts you should be aware of when assessing ADC accuracy:
+
+- **Offset Error** is how far off the reading could be from the actual voltage due to analog inaccuracy in the ADC. Offset error generally refers to error that is constant for a given part under given conditions -- it doesn't change based on the input voltage and can be calibrated out.
+    - For example, if you had a 12-bit ADC with an offset error of +-5 bits, then that means the error due to offset could be +-0.12%, or +-4.0mV (assuming a 3.3V ADC)
+- **Integral Non-Linearity** (or INL) is the maximum error that can be introduced by non-linearity of the ADC, after correcting for offset error. Like offset error, INL is usually expressed in bits or percent full scale range. Unlike offset error, INL cannot be calibrated out as it depends on the input voltage being read.
+- **Effective Number of Bits** (or ENOB) is the number of bits of an *ideal* ADC that the ADC on your part actually has. ENOB is calculated by factoring in offset and INL together, along with other ADC error sources like noise, differential nonlinearity, and sampling clock jitter. One way to think about ENOB is that if you were to reduce your samples to only ENOB bits, you would not see any measurable ADC errors at all.
+    - For example, the RP2040 has a 12-bit ADC on paper, but only has an ENOB of 8.7 bits. This means that if you care about the ~four lowest bits of each measurement, you will need to understand and contend with the various internal error sources of the ADC.
+
+For many simple applications, it is true that these errors are small compared to the overall range and resolution of the ADC. However, for anything requiring even moderate precision, it is worth taking a careful look at these parameters in your chip datasheet before continuing with your design. Internal ADCs in microcontrollers are often designed for speed and compactness, at the detriment of accuracy at noise. If you need accurate analog sensing in your design, you may wish to consider using an external ADC instead.
+
+For even more explanation of ADC errors, see [here](https://www.tek.com/en/blog/understanding-enob).
+
 #### Conversion Time
+
+Analog to digital converts generally experience a tradeoff between conversion time and resolution (specifically, ENOB). For SAR ADCs, this is because the ADC operates using a binary search, so the more bits it needs to binary search, the longer it needs to run. And for all types of ADCs, a longer conversion time provides the ability to average multiple samples, decreasing noise (and therefore increasing ENOB).
+
+Unfortunately, Mbed OS does not currently have an API to configure ADC settings such as averaging and number of bits, so this is set in the HAL layer and not modifiable by the user. Settings vary for each target, but *generally* the following is used:
+
+* Averaging disabled, if present
+* Highest possible bit resolution used
+* Other settings configured for highest possible conversion speed (i.e. fastest clock available provided to the ADC)
+
+!!! note
+    We would love to add an API by which these settings can be configured, so keep a lookout!
+
+In ARM microcontrollers, *generally speaking*, the ADC runs at between 100ksps and 1Msps, and the conversion time will be in the low double digit range.
+
 #### Aliasing
 ### Using `AnalogIn`
 ## Analog Outputs
 ### DAC Basics
 
 !!! note "Don't confuse analog outputs with PWM!"
-    It's common to confuse a "true" analog output (a DAC) with a PWM output. These are not the same thing! A true analog output outputs an actual analog voltage, while a PWM output outputs a square wave that averages out into an analog voltage. It is possible to approximage an analog voltage using a PWM output, but you would need an external filtering circuit, and this comes with other downsides (limited current sourcing capability, voltage ripple, etc). Meanwhile, an actual DAC just gives you an exact analog voltage, no muss, no fuss.
+    It's common to confuse a "true" analog output (a DAC) with a PWM output. These are not the same thing! A true analog output outputs an actual analog voltage, while a PWM output outputs a square wave that averages out into an analog voltage. It is possible to approximate an analog voltage using a PWM output, but you would need an external filtering circuit, and this comes with other downsides (limited current sourcing capability, voltage ripple, etc). Meanwhile, an actual DAC just gives you an exact analog voltage, no muss, no fuss.
 
     And yet... the Arduino framework continues to mislead people about this to this day by referring to setting a PWM as an "[analog write](https://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/)".
 

@@ -1,4 +1,4 @@
-# I/O Pin Basics
+# I/O Pins
 
 Inputs and outputs, usually shortened to I/O, are the bread and butter of microcontroller functionality. Sure, you have your more complex busses and signals like I2C and PWM, but, at the end of the day, a lot of times you just need to read or write a signal on a pin.
 
@@ -11,7 +11,7 @@ Generally speaking, there are four kinds of I/O:
 - Analog inputs (ADCs)
 - Analog outputs (DACs)
 
-Mbed has several different classes that allow access to these functions, and we'll go through them all in this how-to guide.
+Mbed has several different classes that allow access to these functions, and we'll go through them all here.
 
 ## Digital I/O
 ### Digital Outputs (`DigitalOut`)
@@ -208,7 +208,7 @@ int main()
 {
     // note: This assumes that the button needs a pullup -- some boards may need a pull down or something else!
     InterruptIn buttonIn(BUTTON1, PullUp);
-    buttonIn.rise(onRisingEdge);
+    buttonIn.rise(mbed::callback(onRisingEdge));
 
     while(true)
     {
@@ -227,4 +227,6 @@ In this example, we pass the `onRisingEdge` function as a callback to the interr
 
 !!! warning "Debouncing"
     If using an InterruptIn to read a button in a real project, you will need some form of debouncing circuit between the button and the MCU. This is because mechanical buttons are very noisy and can generate multiple edges when pressed. If you don't filter these out, these edges could cause the interrupt to trigger constantly and monopolize your CPU!
+
+Also note that the `InterruptIn::fall()` function is available if you would like to set a falling-edge interrupt instead. Both rising and falling interrupts can be set on the same pin, and Mbed will execute the correct one depending on what happened to the pin. However, note that if both types of edge occur in quick succession (microseconds apart), only some targets are able to log both these events and call both callbacks. Other targets (including all STM32 chips) only have a single interrupt register for both edge types, so they will only execute the callback corresponding to the second edge.
 
