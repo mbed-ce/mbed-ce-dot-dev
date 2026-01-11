@@ -21,7 +21,6 @@ However, the following restrictions apply with PlatformIO:
         - The Mbed LPC1768 board
         - NXP (formerly Freescale) Kinetis line of MCUs, e.g. `K64F`
     - After modifying `mbed_app.json5`, a manual clean of the project is required as build system dependencies are not properly set up.
-    - It's not currently possible to depend on optional libraries within Mbed CE, including USB and networking (we are actively working on fixing this now).
 
     Fixing most of these issues would require official support for Mbed CE in PlatformIO. We are in communication with the PlatformIO developers, and they would be happy to add this support if we can demonstrate significant usage of Mbed CE on their platform.
 
@@ -101,3 +100,14 @@ After connecting your target, you should then be able to flash code to it via th
     A default mbed_app.json5 file will be created in your project directory the first time you build the project, if there is not one already. This file will contain reasonable defaults for use of Mbed CE with platformio (mainly, this means setting the serial baudrate to 9600 to match what the serial terminal expects).
 
     While the Mbed CE - PlatformIO integration is in beta status, you will need to _execute a manual clean of the project_ whenever you modify mbed_app.json5. Otherwise, settings changes may not get properly picked up. You can do this by building the "Clean" target in the IDE, or by running `pio run -t clean` on the command line.
+
+## Depending on Libraries
+
+Mbed CE contains a number of optional libraries that must be linked for functionality like networking and storage. Normally, you would use CMake to link your application to these libraries, but platformio projects don't use CMake buildfiles. Instead, you can do this via adding a block like the following to `mbed_app.json5`:
+
+```json5
+"link_libraries": [
+    "mbed-storage-sd", // for SDBlockDevice
+    "mbed-netsocket" // For networking support
+] 
+```
