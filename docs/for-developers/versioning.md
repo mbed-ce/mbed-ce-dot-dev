@@ -47,7 +47,8 @@ This release process is used to create a new major or minor release of Mbed. It'
 1. Push a new commit to `main` that changes the `VERSION` file to contain the desired version number and updates the `CHANGELOG.md` file to show the new release.
 2. Force-push the `release` branch to be equivalent to the `main` branch
 3. Push a new tag to the repository based on head of `main` called `mbed-os-x.y.z`, where `x.y.z` is the version number being released. GitHub Actions automation will then create a GitHub release with the content from the changelog.
-4. Push a new commit to `main` that changes the `VERSION` file back to `x.y.99`.
+4. Push a new PlatformIO release by manually checking out `release` and running the `tools/make_pio_release.sh` script
+5. Push a new commit to `main` that changes the `VERSION` file back to `x.y.99`.
 
 ### Cherry-Pick Bugfix Release Process
 This release process is used if we commit a new bugfix to `main` and wish to release it immediately without releasing other changes on `main` (e.g. because `main` is not in a good state for release).
@@ -55,7 +56,8 @@ This release process is used if we commit a new bugfix to `main` and wish to rel
 1. Cherry-pick the commit or commits that should be released onto the `release` branch and push them.
 2. Push another commit updating the `CHANGELOG.md` file on `release` to contain the new bugfix release with the appropriate changes, and also updating `VERSION` with the new version number.
 3. Push a new tag to the repository based on head of `release` called `mbed-os-x.y.z`, where `x.y.z` is the version number being released. GitHub Actions automation will then create a GitHub release with the content from the changelog.
-4. Finally, push a new commit to `main` that updates `CHANGELOG.md` with the new contents added in `release`, and removes changes from the in-progress release section that have now been released.
+4. Push a new PlatformIO release by manually checking out `release` and running the `tools/make_pio_release.sh` script
+5. Finally, push a new commit to `main` that updates `CHANGELOG.md` with the new contents added in `release`, and removes changes from the in-progress release section that have now been released.
 
 ### Backport Releases
 We may be in a situation where we want to release small changes or bugfixes for a previous release after it has been superseded by a new major release. This would be the case, for example, if we release version 8.0, and then find a serious bug in the latest 7.y.z release that needs a patch. Under this situation we could not use the process above because the `release` branch would already contain an 8.x release.
