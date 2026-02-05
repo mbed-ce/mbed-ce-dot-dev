@@ -69,10 +69,45 @@ Unfortunately, Mbed OS does not currently have an API to configure ADC settings 
 !!! note
     We would love to add an API by which these settings can be configured, so keep a lookout!
 
-In ARM microcontrollers, *generally speaking*, the ADC runs at between 100ksps and 1Msps, and the conversion time will be in the low double digit range.
+In ARM microcontrollers, *generally speaking*, the ADC runs at between 100ksps and 1Msps, and the conversion time will be in the low double digit microsecond range.
 
 #### Aliasing
 ### Using `AnalogIn`
+
+In Mbed, ADC functionality is available through the [`AnalogIn`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_in.html) class. Basic usage is quite simple: just construct it with the desired analog pin, and then read the data:
+
+```cpp
+AnalogIn anaIn(PA_1);
+
+float reading = anaIn.read();
+```
+
+!!! note "Analog Pins"
+    AnalogIn objects can only be constructed with pins that have ADC functionality. Consult your MCU and board documentation to determine which pins these are.
+
+Calling `read()` returns the analog value as a fraction of the reference voltage, from 0-1. For example, if your reference voltage is 3.3V and the the pin is at 1V, `reading` will be about 0.303.
+
+There is also the `read_u16()` function, which provides the reading in the range [0, 0xFFFF]. Basically, this returns the raw ADC counts as would have been produced from a 16-bit ADC (regardless of the number of bits of this specific target's ADC).
+
+```cpp
+uint16_t reading_u16 = anaIn.read_u16();
+```
+
+Continuing the previous example, if reference voltage is 3.3V and the the pin is at 1V, then this will return approximately 19,859 counts.
+
+Using this function can be slightly more efficient than the `float`-returning version, especially on more limited CPU cores without a floating point unit, but it's not likely to make a huge difference. I recommend just using whichever version is more convenient for your specific use case.
+
+Last but not least, if the reference voltage is configured (either by setting `target.default-adc-vref` in your target JSON, or by passing the reference voltage as the 2nd arg to the `AnalogIn`'s constructor), you can read the analog input in volts:
+
+```cpp
+float reading_volts = anaIn.read_voltage();
+```
+
+!!! note "ADC Configuration"
+    Mbed currently does not allow any user configuration of the ADC, so more advanced features like configuring the averaging, resolution, and sample time are currently unavailable.
+
+    This is something we would love to change long-term, and would be interested in new development in this area!
+
 ## Analog Outputs
 ### DAC Basics
 

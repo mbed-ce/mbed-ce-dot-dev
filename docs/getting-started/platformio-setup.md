@@ -20,6 +20,7 @@ However, the following restrictions apply with PlatformIO:
         - Nearly all STM32 boards
         - The Mbed LPC1768 board
         - NXP (formerly Freescale) Kinetis line of MCUs, e.g. `K64F`
+        - RP2040
     - After modifying `mbed_app.json5`, a manual clean of the project is required as build system dependencies are not properly set up.
 
     Fixing most of these issues would require official support for Mbed CE in PlatformIO. We are in communication with the PlatformIO developers, and they would be happy to add this support if we can demonstrate significant usage of Mbed CE on their platform.
@@ -76,6 +77,7 @@ We will need to change the `framework` to `mbed-ce`. We will also need to change
 |`ststm32`|`https://github.com/mbed-ce/pio-platform-ststm32.git#dev/add-mbed-ce`|
 |`freescalekinetis`|`https://github.com/mbed-ce/pio-platform-freescalekinetis.git#dev/add-mbed-ce-support`|
 |`nxplpc`|`https://github.com/mbed-ce/pio-platform-nxplpc.git#dev/add-mbed-ce-support`|
+|`raspberrypi`|`https://github.com/platformio/platform-raspberrypi.git`|
 
 Your platformio.ini file should now look something like:
 
