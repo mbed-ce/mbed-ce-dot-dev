@@ -71,7 +71,18 @@ Unfortunately, Mbed OS does not currently have an API to configure ADC settings 
 
 In ARM microcontrollers, *generally speaking*, the ADC runs at between 100ksps and 1Msps, and the conversion time will be in the low double digit range.
 
-#### Aliasing
+#### Aliasing and Input Filtering
+
+Without going into too much detail, aliasing is a phenomenon where sampling an analog signal at too low of a frequency causes invalid or phantom data to appear in the resultant ADC readings.
+
+![Aliasing Image](https://docs-be.ni.com/bundle/labwindows-cvi/page/advancedanalysisconcepts/guid-932173fe-d89c-4bc0-a3ed-980f99bcc06b-help-web.png?_LANG=enus)
+
+Consider the signals in the above image ([source](https://www.ni.com/docs/en-US/bundle/labwindows-cvi/page/advancedanalysisconcepts/aliasing.html)). Because of sampling too slowly, the true high-frequency sine wave is seen as a lower-frequency sine wave. This phenomenon is highly dependent on sampling frequency: sampling at a different rate will get a different frequency "phantom" sine wave, or potentially even a constant value.
+
+To avoid aliasing, you must sample at, at least, a rate referred to as the Nyquist frequency, which is equal to twice the highest frequency component of your analog input. So, for example, if you want to sample signals up to 10kHz, you must make ADC readings at at least 20kHz to avoid aliasing.
+
+Generally, it is recommended to add input filtering on your analog inputs based on the frequency of signals that you want to sample and the rate at which you will be reading the analog inputs in software. Implementing such filtering is outside the scope of this document, but generally can be achieved with something as simple as a resistor-capacitor (R-C) low pass filter.
+
 ### Using `AnalogIn`
 ## Analog Outputs
 ### DAC Basics
