@@ -96,8 +96,7 @@ To do that, go into the mbed-os folder and run the following commands (from [her
 git fetch --unshallow
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch origin
-git checkout master
-git reset --hard origin/master
-git config -f .gitmodules submodule.mbed-os.shallow false
+git checkout main
+git reset --hard origin/main
 ```
 That will get you on a master branch that matches master branch on the mbed-os repo, and you can make commits, PRs, and forks like normal.
