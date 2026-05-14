@@ -226,7 +226,7 @@ int main() {
 ```
 
 !!! warning "Thread Safety Note"
-    If a single I2C object is being shared among multiple threads, you should surround usage of the      single-byte API with [`I2C::lock()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#ad67df83ace240f53c1276e24a37ff84c) and [`I2C::unlock()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#a5d882b4e464e4f4bd59eab6c75297bda). This ensures that a transaction by one thread is not interrupted by another. It may also improve performance because the backing mutex will not need to be locked for each byte.
+    If a single I2C object is being shared among multiple threads, you should surround usage of the single-byte API with [`I2C::lock()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#ad67df83ace240f53c1276e24a37ff84c) and [`I2C::unlock()`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_i2_c.html#a5d882b4e464e4f4bd59eab6c75297bda). This ensures that a transaction by one thread is not interrupted by another. It may also improve performance because the backing mutex will not need to be locked for each byte.
 
 ### Asynchronous API
 
