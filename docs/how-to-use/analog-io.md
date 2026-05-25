@@ -52,7 +52,7 @@ There are many different ways to express ADC accuracy, and a full description wo
 - **Effective Number of Bits** (or ENOB) is the number of bits of an *ideal* ADC that the ADC on your part actually has. ENOB is calculated by factoring in offset and INL together, along with other ADC error sources like noise, differential nonlinearity, and sampling clock jitter. One way to think about ENOB is that if you were to reduce your samples to only ENOB bits, you would not see any measurable ADC errors at all.
     - For example, the RP2040 has a 12-bit ADC on paper, but only has an ENOB of 8.7 bits. This means that if you care about the ~four lowest bits of each measurement, you will need to understand and contend with the various internal error sources of the ADC.
 
-For many simple applications, it is true that these errors are small compared to the overall range and resolution of the ADC. However, for anything requiring even moderate precision, it is worth taking a careful look at these parameters in your chip datasheet before continuing with your design. Internal ADCs in microcontrollers are often designed for speed and compactness, at the detriment of accuracy at noise. If you need accurate analog sensing in your design, you may wish to consider using an external ADC instead.
+For many simple applications, it is true that these errors are small compared to the overall range and resolution of the ADC. However, for anything requiring even moderate precision, it is worth taking a careful look at these parameters in your chip datasheet before continuing with your design. Internal ADCs in microcontrollers are often designed for speed and compactness, at the detriment of accuracy and noise. If you need accurate analog sensing in your design, you may wish to consider using an external ADC instead.
 
 For even more explanation of ADC errors, see [here](https://www.tek.com/en/blog/understanding-enob).
 
@@ -84,12 +84,78 @@ To avoid aliasing, you must sample at, at least, a rate referred to as the Nyqui
 Generally, it is recommended to add input filtering on your analog inputs based on the frequency of signals that you want to sample and the rate at which you will be reading the analog inputs in software. Implementing such filtering is outside the scope of this document, but generally can be achieved with something as simple as a resistor-capacitor (R-C) low pass filter.
 
 ### Using `AnalogIn`
+
+In Mbed, ADC functionality is available through the [`AnalogIn`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_in.html) class. Basic usage is quite simple: just construct it with the desired analog pin, and then read the data:
+
+```cpp
+AnalogIn anaIn(PA_1);
+
+float reading = anaIn.read();
+```
+
+!!! note "Analog Pins"
+    AnalogIn objects can only be constructed with pins that have ADC functionality. Consult your MCU and board documentation to determine which pins these are.
+
+Calling `read()` returns the analog value as a fraction of the reference voltage, from 0-1. For example, if your reference voltage is 3.3V and the the pin is at 1V, `reading` will be about 0.303.
+
+There is also the `read_u16()` function, which provides the reading in the range [0, 0xFFFF]. Basically, this returns the raw ADC counts as would have been produced from a 16-bit ADC (regardless of the number of bits of this specific target's ADC).
+
+```cpp
+uint16_t reading_u16 = anaIn.read_u16();
+```
+
+Continuing the previous example, if reference voltage is 3.3V and the the pin is at 1V, then this will return approximately 19,859 counts.
+
+Using this function can be slightly more efficient than the `float`-returning version, especially on more limited CPU cores without a floating point unit, but it's not likely to make a huge difference. I recommend just using whichever version is more convenient for your specific use case.
+
+Last but not least, if the reference voltage is configured (either by setting `target.default-adc-vref` in your target JSON, or by passing the reference voltage as the 2nd arg to the `AnalogIn`'s constructor), you can read the analog input in volts:
+
+```cpp
+float reading_volts = anaIn.read_voltage();
+```
+
+!!! note "ADC Configuration"
+    Mbed currently does not allow any user configuration of the ADC, so more advanced features like configuring the averaging, resolution, and sample time are currently unavailable.
+
+    This is something we would love to change long-term, and would be interested in new development in this area!
+
 ## Analog Outputs
-### DAC Basics
+
+If you want to output an analog signal instead of reading one in, many microcontrollers can do that. This is not as common of a feature across all the MCUs that Mbed supports, but [many offerings from NXP, Nuvoton, and STMicro](https://mbed-ce.github.io/mbed-ce-test-tools/drivers/DEVICE_ANALOGOUT.html) do have it, at least on one or two pins.
 
 !!! note "Don't confuse analog outputs with PWM!"
-    It's common to confuse a "true" analog output (a DAC) with a PWM output. These are not the same thing! A true analog output outputs an actual analog voltage, while a PWM output outputs a square wave that averages out into an analog voltage. It is possible to approximate an analog voltage using a PWM output, but you would need an external filtering circuit, and this comes with other downsides (limited current sourcing capability, voltage ripple, etc). Meanwhile, an actual DAC just gives you an exact analog voltage, no muss, no fuss.
+    It's common to confuse a "true" analog output with a PWM output. These are not the same thing! A true analog output outputs an actual analog voltage, while a PWM output outputs a square wave that averages out into an analog voltage. It is possible to approximate an analog voltage using a PWM output, but you would need an external filtering circuit, and this comes with other downsides (limited current sourcing capability, voltage ripple, etc). Meanwhile, an actual DAC just gives you an exact analog voltage, no muss, no fuss.
 
     And yet... the Arduino framework continues to mislead people about this to this day by referring to setting a PWM as an "[analog write](https://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/)".
 
+### DAC Basics
+
+DACs are generally simpler than ADCs, and many of the same concepts from the previous section apply. As before, DACs translate between a digital number and an analog voltage, just in the other direction -- the digital code is interpreted as a percent that sets the output voltage. Also like ADCs, DACs operate using a "reference voltage" which sets the voltage that will be output when the digital code is at 100%.
+
+Internally, most microcontroller DACs are implemented via resistor ladders which can generate different output voltages depending on which points are connected to power and ground. The output of the resistors is then connected to an op-amp which buffers the signal and outputs it via a pin. [This site](https://2n3904blog.com/r2r-dac/) has more information on the specific circuit and the math behind it, if you'd like to learn more.
+
 ### Using `AnalogOut`
+
+In Mbed, ADC functionality is available through the [`AnalogOut`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_analog_out.html) class. Basic usage is quite simple: just construct it with the desired analog pin, and then write your commanded voltage:
+
+```cpp
+AnalogOut anaOut(PA_1);
+
+anaOut.write(0.5); // Outputs half the reference voltage
+anaOut = 0.5; // Shorthand for the above
+```
+
+!!! note "Reference Voltage"
+    Writing to the analog out is always done in terms of the reference voltage. To find what the reference voltage is, you must consult your board or MCU documentation. Mbed currently does not have a way to programmatically determine what the DAC reference voltage is (though I guess you could always just test it by writing a known value and measuring it with a meter...).
+
+
+There is also the `write_u16()` function, which accepts the command in the range [0, 0xFFFF]. This allows you to use the DAC without pulling in floating-point code, if you choose.
+
+```cpp
+anaOut.write(0xFFFF); // Commands to the highest possible voltage (usually one count lower than Vref)
+```
+
+!!! warning "Mbed Suitability for Periodic Signals"
+    A common use of DACs is to output periodic signals to the hardware -- for instance, if you wanted to generate a sine wave for some kind of analog circuit. Unfortunately, Mbed's AnalogOut API does not have any way to queue up multiple values in the DAC to be transmitted, or to send values at a constant rate. So, if you need to update the DAC value with better than ~millisecond time precision, the Mbed AnalogOut API is likely not a good choice, and you may need to program your chip's registers directly and/or use DMA.
+
+    As before, this is something we'd love contributions to improve and fix!
