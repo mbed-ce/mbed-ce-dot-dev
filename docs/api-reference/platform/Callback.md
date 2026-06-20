@@ -23,17 +23,16 @@ This section will show you how to actually instantiate a callback based on the t
 
 Up until C++17 at least, template arguments could not be deduced for object constructors. So, Mbed provides the `mbed::callback` (lower case c) global function to create a callback while deducing the type of the arguments. This function can often provide a more concise way to create callbacks (at the cost of somewhat more complex compiler errors if something goes wrong) if you don't have a typedef for the function name. So, it will be illustrated here as well.
 
-For this section, suppose we have the following code:
+Next, we'll cover how to create callbacks. For this section, suppose we have the following code:
 ```cpp
-typedef Callback<bool(uint8_t, char const *)> EventHandler; // Handles an event. Args are event code and description message, return value is true for success
+// Handles an event. Args are event code and description message, return value 
+// is true for success
+typedef Callback<bool(uint8_t, char const *)> EventHandler; 
 
 void addEventHandler(EventHandler const & event) {
     ...
 }
 ```
-
-Here's how to create callbacks using this API:
-
 ### For a Global Function
 
 ```cpp
@@ -42,7 +41,7 @@ bool globalHandler(uint8_t code, char const * message) {
 }
 ```
 
-For this, we just need to pass the function name:
+For this, we just need to pass the function name. Any of the following can be used:
 
 ```cpp
 addEventHandler(mbed::callback(globalHandler));
@@ -151,13 +150,13 @@ Callback<int(float)> cb2(nullptr); // also empty
 
 To check if a callback is empty, you should evaluate it as a boolean, or compare against nullptr.
 ```cpp
-if(!cb1){} // will execute
-if(cb2 == nullptr) // will also execute
+bool cb1HasValue = !cb1; // true
+bool cb2HasValue = cb2 != nullptr; // false
 ```
 
 ## Currying with Lambdas
 
-Even though callbacks do not directly support parameter binding / currying, you can achieve something similar through the use of lambdas. Extending the above event handler example, suppose you wanted to attach an event handler callback that took an event ID and an object to operate on, rather than the event ID and the message:
+Even though callbacks do not directly support parameter binding / currying, you can achieve something similar through the use of lambdas. Extending the above event handler example, suppose you wanted to attach an event handler callback that has a different signature (takes a class instance and an event code, rather than the event ID and the message):
 
 ```cpp
 class SomeOtherClass{...};

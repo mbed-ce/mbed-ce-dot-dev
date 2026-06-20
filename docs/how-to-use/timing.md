@@ -33,11 +33,11 @@ at the start of main().
 !!! warning "Peripheral Ownership"
     The μs ticker (and LP ticker, if supported) are one of the very few instances where Mbed OS will take control of a peripheral at boot. Normally Mbed tries not to use peripherals unless you explicitly instantiate the corresponding class. If you intend to manually interact with the timer peripherals on your chip, it is highly recommended to inspect your target's implementation of `us_ticker.c` and `lp_ticker.c` to determine which timer peripherals Mbed is using.
 
-### Low Precision (LP) Ticker
+### Low Power (LP) Ticker
 
 **Classes:** `LowPowerTimer`, `LowPowerTicker`, `TickerDataClock`
 
-**Availability:** All targets [with Low-Precision Ticker (`DEVICE_LPTICKER`) feature](https://mbed-ce.github.io/mbed-ce-test-tools/drivers/DEVICE_LPTICKER.html)
+**Availability:** All targets [with Low-Power Ticker (`DEVICE_LPTICKER`) feature](https://mbed-ce.github.io/mbed-ce-test-tools/drivers/DEVICE_LPTICKER.html)
 
 **Resolution:** Depends on target, usually ~100 microseconds (reports in microseconds)
 
@@ -45,12 +45,12 @@ at the start of main().
 
 **Counts:** At all times
 
-The LP ticker is similar to the μs ticker except that it is implemented using a "low power" timer peripheral, such as the LPTIM on STM32s or the Always-On Timer on RP2xxx. These low-power timer peripherals are usually clocked at a slower rate (tick period between 10 and 100 us) and run off of a slower oscillator, such as an internal RC oscillator or an external 32.768kHz crystal.
+The LP ticker is similar to the μs ticker except that it is implemented using a "low power" timer peripheral, such as the LPTIM on STM32s or the Always-On Timer on RP234x. These low-power timer peripherals are usually clocked at a slower rate (tick period between 10 and 100 us) and run off of a slower oscillator, such as an internal RC oscillator or an external 32.768kHz crystal.
 
 Unlike the μs ticker, the LP ticker remains on during deep sleep.
 
-!!! note "Acronym"
-    You will also sometimes hear the LP ticker referred to as the "Low Power Ticker", because various developers have assumed that's what LP stood for. But I checked in the original code docs and it's definitely "low precision".
+!!! note "Acronym Confusion"
+    You will also sometimes hear the LP ticker referred to within the Mbed source code as the "Low Precision Ticker", I assume because it fits the acronym and the LP ticker is indeed less precise than the μs ticker. In fact, this may have been the original meaning of the term, but "Low Power" seems to be in much more common use now.
 
 ### Real Time Clock (RTC)
 
