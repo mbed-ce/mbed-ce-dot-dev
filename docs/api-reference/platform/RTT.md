@@ -22,7 +22,7 @@ With this enabled, Mbed will initialize the console at boot on RTT channel 0 (th
 
 ## Using RTT Manually
 
-Any RTT channel may be used by instantiating the `RTTHandle` class:
+Any RTT channel may be used in your own code by instantiating the `RTTHandle` class. For example:
 
 ```cpp
 
@@ -50,7 +50,7 @@ target_link_libraries(MyApplication mbed-rtt)
 
 ## Connecting to RTT via the Debugger
 
-Mbed features basic support for connecting to RTT during a debug session started by Mbed's build system. This support will only activate when `target.console-rtt` is enabled in JSON, and makes the RTT console available on a telnet port on the local machine (the port number is controlled by the `MBED_RTT_PORT` option -- default 19022).
+Mbed features basic support for using RTT during a debug session started by Mbed's build system. This support will only activate when `target.console-rtt` is enabled in JSON, and makes the RTT console for channel 0 (the default stdio channel) available on a telnet port on the local machine (the port number is controlled by the `MBED_RTT_PORT` option -- default 19022).
 
 RTT is supported when using the `JLINK`, `OPENOCD`, and `PYOCD` upload methods. It is *not* supported with any other upload methods at this time.
 
