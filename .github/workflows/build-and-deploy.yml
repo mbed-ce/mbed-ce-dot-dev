@@ -27,7 +27,7 @@ jobs:
       uses: easingthemes/ssh-deploy@v5.1.0
       with:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        ARGS: "-rlgoDzvc -i --delete"
+        ARGS: "-rlgoDzvc -i"
         SOURCE: "site/"
         REMOTE_HOST: mbed-ce.dev
         REMOTE_USER: website-deploy
