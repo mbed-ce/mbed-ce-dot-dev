@@ -56,7 +56,7 @@ If you want to instead use a static IP, you can do that by passing the network p
 
 ### Wi-Fi
 
-Connecting to wi-fi is pretty similar, except you need to declare a `[WiFiInterface](https://mbed-ce.github.io/mbed-os/class_wi_fi_interface.html)` object, and you need to provide the network type, name, and password before you can connect to it.
+Connecting to wi-fi is pretty similar, except you need to declare a [`WiFiInterface`](https://mbed-ce.github.io/mbed-os/class_wi_fi_interface.html) object, and you need to provide the network type, name, and password before you can connect to it.
 
 #### Scanning
 

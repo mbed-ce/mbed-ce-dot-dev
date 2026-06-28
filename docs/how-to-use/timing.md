@@ -85,13 +85,161 @@ On most targets (not RP2040), the RTC will keep time across chip resets, so you 
 
 **Counts:** From boot
 
-This time source provides access to the real-time OS's tick counter. This counter is incremented every millisecond when the RTOS performs a scheduling operation.
+This time source provides access to the real-time OS's tick counter. This counter is incremented every millisecond when the RTOS performs, or would have performed, a scheduling operation.
 
 The underlying time source depends: if the target does not define `MBED_TICKLESS`, it uses the ARM core's SysTimer peripheral. This is universal to all ARM MCUs, but has the limitation that it forces a wakeup each millisecond, creating a lot of sleep enter/exit overhead and preventing deep sleep from being used by the RTOS at all. If `MBED_TICKLESS` is defined, the RTOS is configured to use the μs ticker or LP ticker as its time and wakeup source.
 
 If there is no RTOS, this time source is still available, but does not use the RTOS and directly reads the μs ticker or LP ticker.
 
 ## The Chrono Library
+
+Mbed OS 6 and later make heavy use of the [C++ std::chrono library](https://cppreference.com/cpp/chrono) for storing and operating on times. This library is extremely powerful and capable, **but** suffers from a major flaw: it's not the easiest to understand, and certain operations (e.g. converting to float) are not very intuitive.
+
+In this section, we'll do our best to remedy this flaw by explaining the basics of how `std::chrono` works and illustrating how to accomplish common tasks.
+
+### Time Durations
+
+Time durations are represented in `std::chrono` by the [`std::chrono::duration`](https://cppreference.com/cpp/chrono/duration) type. A `duration` represents a certain amount of time, e.g. one second or ten milliseconds. You could also think of it as the _change_ in time between two timestamps. It does NOT represent an absolute timestamp, such as "1 second after the Unix epoch".
+
+The `std::chrono::duration` class takes two template arguments: the representation type, `Rep`, and the conversion ratio, `Period`. `Rep` is the underlying type that is used to store the duration internally. It is always a signed integer, and is usually `int64_t` for durations of seconds or finer. The other template arg, `Period`, basically gives the scaling factor between `Rep` and whole seconds. For example, if we wanted to define a duration type expressing milliseconds, we could do this as:
+
+```cpp
+typedef std::chrono::duration<int64_t, std::ratio<1, 1000>> milliseconds;
+```
+
+This tells the chrono library that this is a duration which contains an int64_t, and that an integer value of 1 in this duration equals 1/1000th of a second.
+
+Of course, we don't actually need to define that ourselves, because the standard library [provides](https://cppreference.com/cpp/chrono/duration#Helper_types) `std::chrono::seconds`, `std::chrono::milliseconds`, `std::chrono::microseconds`, and others already! These make working with "standard" time types a snap.
+
+`duration`s implement operator overloading and support all your standard mathematical operations.
+
+```cpp
+// Durations can be added and subtracted
+1ms + 3ms; // evaluates to 4ms
+3ms - 1ms; // evaluates to 2ms
+
+// Durations can be multiplied, but only by integers
+1ms * 4; // evaluates to 4ms
+
+// Durations can be divided by integers or another duration
+3ms / 2; // evaluates to 1ms (integer division!)
+105ms / 50ms; // evaluates to 2
+
+// Durations can be modulo-ed by integers and other durations
+3ms % 2; // evaluates to 1ms
+105ms % 50ms // evaluates to 5ms
+```
+
+!!! note "Storage Type"
+    Internally, durations are stored as a single integer of type `Rep`. There is no additional memory overhead from using the C++ class, and as long as compiler optimizations are on, there should be virtually no code size or execution time overhead either versus simply using an integer.
+    This is one of those "zero-overhead abstractions" that us C++ people are so proud of!
+
+### Literal Suffixes
+
+Is `std::chrono::milliseconds` too much typing for you? Well, `std::chrono` has a way to make defining times even easier. If you stick this line at the top of your code file:
+
+```cpp
+using namespace std::chrono_literals;
+```
+
+then you can use standard SI units abbreviations as literal suffixes to declare time constants super easily:
+
+```cpp
+using namespace std::chrono_literals;
+
+constexpr auto SHORT_TIMEOUT = 1us; // equivalent to std::chrono::microseconds(1)
+constexpr auto LONG_TIMEOUT = 10s; // equivalent to std::chrono::seconds(10)
+```
+
+!!! tip
+    You cannot directly use these literal suffixes with variables, but you can use multiplication to do basically the same thing.
+
+    ```cpp
+    void doSomething(int timeout_ms) {
+
+        // Long way
+        const std::chrono::milliseconds timeout(timeout_ms);
+
+        // Short way
+        const auto timeout = 1ms * timeout_ms;
+    ```
+
+### Clocks and Time Points
+
+`duration`s are only half the story of the chrono library. The other half is [`std::chrono::time_point`](https://cppreference.com/cpp/chrono/time_point). This class represents an absolute point in time, _as measured by_ some specific clock. `time_point`s are templated on the clock itself, meaning that time_points from two different clocks are treated as completely different types by the compiler. This makes it impossible to use them together in expressions, meaning there is a very strong compile-time check against accidentally comparing time_points from different clocks.
+
+!!! info "Ye Olden Days of C"
+    When using C time APIs, accidentally mixing up "arbitrary" timestamps (e.g. time since boot) and "absolute" timestamps (e.g. time since UNIX epoch) is a big issue that the language provides very little protection against. This is one of the primary reasons to use std::chrono over such raw integer types.
+
+Internally, each time point is simply stored as a duration (so, a single integer) representing the time since (or before) the epoch. What the epoch represents depends on the clock -- it could be the time since the device booted, or the time since Jan 1 1970, or something else entirely. You can get this duration by calling the `time_since_epoch()` method. You can also construct a `time_point` with a `duration` value to create one containing a specific time.
+
+Just like `duration`, `time_point` supports standard arithmetic operations, though only addition and subtraction:
+
+```cpp
+RealTimeClock::time_point timeA(5s);
+
+// Adding a duration to a time_point returns an offset time_point
+auto timeB = timeA + 5s; // evaluates to RealTimeClock::time_point(10s)
+
+// Subtracting two time_points returns a duration
+timeB - timeA; // evaluates to 5s
+```
+
+Notice that these operations convert between durations and time_points in the expected manner. Subtracting two time_points gets a _delta_ time (a duration), and the compiler won't let you add two absolute time_points as that would not make sense.
+
+!!! warning "Chrono Type Initialization"
+    `std::chrono::duration` is a plain-old-data type with no constructor, meaning that if you don't explicitly set the time value when you create one, it will be left uninitialized by the compiler.
+
+    ```cpp
+    std::chrono::milliseconds time1(1); // initialized to 1ms
+    std::chrono::milliseconds time2{}; // initialized to zero
+    std::chrono::milliseconds time3; // Contents undefined, likely random stack data
+    ```
+
+    However, `std::chrono::time_point` DOES have a default constructor which sets the time to zero:
+
+    ```cpp
+    RealTimeClock::time_point timePoint1(1s); // initialized to 1 second since epoch
+    RealTimeClock::time_point timePoint2{}; // initialized to 0 seconds since epoch
+    RealTimeClock::time_point timePoint3; // initialized to 0 seconds since epoch
+    ```
+
+    I have never really understood why this relatively arbitrary difference exists between these two types...
+
+Clocks, meanwhile, are represented as C++ classes providing a specific interface. Specifically, they must have a static function called `now()` which returns the current time, and `duration` and `time_point` typedefs that give the types of the clock's "native" durations and time_points. 
+
+!!! note "Who says C++ doesn't have duck typing?"
+    Due to `std::chrono`'s use of templates, clocks do not need to actually extend any specific class. Any class which contains [the necessary members](https://cppreference.com/cpp/named_req/Clock) is, _by definition_, a Clock.
+
+In ordinary desktop C++, the standard library defines [several clocks](https://cppreference.com/cpp/chrono#Clocks) for you to use. This includes `std::steady_clock`, which provides a steadily increasing time value with a completely arbitrary epoch, and `std::system_clock`, which provides the time since the UNIX epoch but _may_ experience sudden jumps if the system time changes.
+
+In Mbed OS, we instead provide a few different clocks representing the available sources of time as described above:
+
+```cpp
+// Gets the time from the real-time clock, if supported. Resolution is seconds.
+auto rtcTime = RealTimeClock::now();
+
+// Gets the boot time timestamp from the μs ticker
+TickerDataClock usClock(get_us_ticker_data());
+auto usTickerTime = usClock.now();
+
+// Gets the boot time timestamp from the LP ticker
+TickerDataClock lpClock(get_lp_ticker_data());
+auto lpTickerTime = lpClock.now();
+```
+
+!!! note "Pseudo-Clocks"
+    As you may notice from the above code, `TickerDataClock` needs to be instantiated (passing the data of the ticker you want to read) before it can be used. This type of Clock is referred to as a pseudo-clock, and it does not quite match up with the regular std::chrono API. In particular, this usage means that time_points from the μs and LP ticker cannot be distinguished by the compiler, so some safety against bad behavior is lost. I am not entirely sure why Mbed uses this approach -- perhaps to enable more code reuse between code operating on the μs and LP tickers?
+
+    Also, it's worth noting that `TickerDataClock` is only a lightweight wrapper class around the actual ticker logic, so you can create as many instances as you like and don't need to worry about sharing them around. All instances will return the same time from now().
+
+
+### Converting and Rounding Times
+
+### Printing Times
+
+
+### std::chrono for Embedded Programming
 
 ## Measuring Time with Timer
 
