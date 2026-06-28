@@ -229,17 +229,101 @@ auto lpTickerTime = lpClock.now();
 ```
 
 !!! note "Pseudo-Clocks"
-    As you may notice from the above code, `TickerDataClock` needs to be instantiated (passing the data of the ticker you want to read) before it can be used. This type of Clock is referred to as a pseudo-clock, and it does not quite match up with the regular std::chrono API. In particular, this usage means that time_points from the μs and LP ticker cannot be distinguished by the compiler, so some safety against bad behavior is lost. I am not entirely sure why Mbed uses this approach -- perhaps to enable more code reuse between code operating on the μs and LP tickers?
+    As you may notice from the above code, `TickerDataClock` needs to be instantiated (passing the data of the ticker you want to read) before it can be used. This type of Clock is referred to as a pseudo-clock, and it does not quite match up with the regular std::chrono API. In particular, this API design means that time_points from the μs and LP ticker cannot be distinguished by the compiler, so some safety against bad behavior is lost. I am not entirely sure why Mbed uses this approach -- perhaps to enable more code reuse between code operating on the μs and LP tickers?
 
     Also, it's worth noting that `TickerDataClock` is only a lightweight wrapper class around the actual ticker logic, so you can create as many instances as you like and don't need to worry about sharing them around. All instances will return the same time from now().
 
-
 ### Converting and Rounding Times
+
+Time conversions in std::chrono work in a very intelligent way. Suppose you're trying to convert a duration of type A into a duration of type B. Well, if the duration is exactly representable in type B without any loss of precision, this can actually be done implicitly by the library, with no casting required.
+
+```cpp
+void wait_ms(std::chrono::milliseconds ms);
+
+// Seconds can be converted exactly to milliseconds, so this will convert automatically
+wait_ms(1s);
+
+// This will NOT compile because there is a loss of precision when converting us to ms
+wait_ms(7500us);
+```
+
+If you DO need to perform a conversion that loses precision, there are several tools for that. The most basic operation is [`std::chrono::duration_cast`](https://cppreference.com/cpp/chrono/duration/duration_cast), which was added in the initial std::chrono library. This is essentially a static_cast for durations, and will give the value in the chosen duration type, truncating any remainder and rounding towards 0.
+
+```cpp
+std::chrono::duration_cast<std::chrono::milliseconds>(7400us); // evaluates to 7ms
+std::chrono::duration_cast<std::chrono::milliseconds>(7900us); // also evaluates to 7ms
+std::chrono::duration_cast<std::chrono::milliseconds>(-7900us); // evaluates to -7ms
+```
+
+C++17 added some additional cast functions for doing these types of conversions with explicit rounding: `floor()`, `ceil()`, and `round()`:
+
+```cpp
+// note: floor() is identical to duration_cast except for negative numbers
+std::chrono::floor<std::chrono::milliseconds>(7400us); // evaluates to 7ms
+std::chrono::floor<std::chrono::milliseconds>(7900us); // also evaluates to 7ms
+std::chrono::floor<std::chrono::milliseconds>(-7900us); // evaluates to -ms
+
+std::chrono::ceil<std::chrono::milliseconds>(7400us); // evaluates to 8ms
+std::chrono::ceil<std::chrono::milliseconds>(7900us); // also evaluates to 8ms
+
+std::chrono::round<std::chrono::milliseconds>(7400us); // evaluates to 7ms
+std::chrono::round<std::chrono::milliseconds>(7900us); // evaluates to 8ms
+```
+
+!!! info "Conversion Functions"
+    If you are using C++17 or later, I would recommend using `floor()`/`ceil()`/`round()` in place of `duration_cast()` when converting between integer durations, as these functions make it much clearer to someone reading your code how rounding is being performed. The only exceptions would be if you _really_ care about performance, or you are positive you _don't_ care about how rounding is performed in this instance.
+
+If you want to find out what the remainder is after casting, the modulo operation is useful for that. Suppose (fictional example) that you wanted to split up a wait time into whole milliseconds and fractional ones:
+```cpp
+void waitSpecificTime(std::chrono::microseconds waitTime) {
+    const auto wholeMs = std::chrono::floor<std::chrono::milliseconds>(waitTime);
+    const auto remainder = waitTime % wholeMs;
+    
+    // note that the Mbed wait functions do not quite work like this, this is just an example
+    wait_ms(wholeMs);
+    wait_us(remainder);
+}
+```
+
+Durations can also be converted into floating-point seconds, but the syntax for this one is a little weird and is something you just have to remember:
+
+```cpp
+std::chrono::duration_cast<std::chrono::duration<float>>(7400us).count(); // returns approx. 0.0074
+```
+
+!!! warning "Floating Point Durations"
+    As you can see above, durations can also be instantiated using floating-point types, allowing them to store a non-whole number of ticks. **However**, use of floating point types to store durations and time points is generally not recommended, especially if your code could store large time values in these types.
+
+    This is because floating-point values are internally represented in "scientific notation", with a value and an exponent, each of which having a fixed amount of precision available. So, the larger the float becomes, the more the exponent increases and the less precision is available. This can lead to issues where, as your system operates for longer and your time values increase, you can suddenly no longer do accurate calculations on the time!
+
+    As long as you know that the delta between timestamps is not excessively large, it's OK to do something like
+    ```cpp
+    float deltaSeconds(std::chrono::microseconds a, std::chrono::microseconds b) {
+        const auto deltaUs = b - a;
+        return std::chrono::duration_cast<std::chrono::duration<float>>(deltaUs).count();
+    }
+    ```
+    This ensures that only the relative timestamp gets represented as a float.
+
+    However, do NOT do it like:
+    ```cpp
+    float deltaSeconds(std::chrono::microseconds a, std::chrono::microseconds b) {
+        const float deltaSec = std::chrono::duration_cast<std::chrono::duration<float>>(b).count() - 
+            std::chrono::duration_cast<std::chrono::duration<float>>(a).count();
+        return deltaSec;
+    }
+    ```
+    This way converts the *absolute* timestamps into floats, meaning that the precision of the result will **vary based on the absolute values of `a` and `b`** (very bad, major source of bugs).
+
 
 ### Printing Times
 
 
 ### std::chrono for Embedded Programming
+
+#### Converting Times from Hardware Counters
+
+#### Avoiding Runtime Conversions
 
 ## Measuring Time with Timer
 
