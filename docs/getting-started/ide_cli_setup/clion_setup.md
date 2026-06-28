@@ -58,6 +58,11 @@ Note: Mbed OS tends to clutter this menu up with its own targets.  To find your 
     - Note: With CLion, the GDB command line console is available by going to the GDB tab in the Debug panel.  You can use this console in parallel with the GUI to evaluate expressions and set breakpoints.
         ![CLion gdb console](img/clion-gdb-console.png)
 
+!!! warning "Limited Debug Compatibility"
+    CLion does not currently have the ability to execute a custom .gdbinit file when GDB connects to a target. This means it has some limitations regarding debugging:
+    - Cypress PSOC targets cannot be debugged
+    - RTT does not work when using the `PYOCD` or `OPENOCD` methods
+
 ### Tips
 - **Increasing GDB Timeout:** Sometimes, on Mbed, when you have deeply nested stack frames and lots of local variables, GDB can take a very long time to load after you hit a breakpoint, on the order of a minute.  This can cause CLion to time out and terminate the debugger session.  You can change the timeout by following [these instructions](https://www.jetbrains.com/help/clion/configuring-debugger-options.html#gdb-startup).  I'd recommend at least 120000 ms.
 - **Moving the navigation bar to the top:** In the old CLion UI (and VS Code too) the navigation bar which tells you what file you're in is at the top of the screen, but in the new UI it's at the bottom for some ungodly reason (where you will never see it). You can move it back to the top via a well-buried menu option: View &gt; Appearance &gt; Navigation Bar &gt; Top
