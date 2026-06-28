@@ -1,8 +1,8 @@
 # Callback
 
-In software development, it is useful to be able to pass a reference to your own function to another function or class, so that your code can be executed later. This is called a callback, and is a common concept in most programming languages.
+In software development, it is useful to be able to pass a pointer to a function to another function or class, so that your own code can be executed later by a library. This is called a callback, and is a common concept in most programming languages.
 
-Unfortunately, C++ makes callbacks a bit more difficult than necessary, especially when you want to pass in a member function of a class (member function pointers have a fundamentally different type than regular global function pointers). In desktop C++, there exists the `std::function` class to wrap this complexity, but this class isn't a good fit for embedded development -- it pulls in a large amount of code from the standard library and uses dynamic allocation.
+Unfortunately, C++ makes callbacks a bit more difficult than necessary, especially if you want to pass in a member function of a class as your callback (member function pointers have a fundamentally different type than regular global function pointers). In desktop C++, there exists the `std::function` class to wrap this complexity, but this class isn't a good fit for embedded development -- it pulls in a large amount of code from the standard library and uses dynamic allocation.
 
 This is where the [`mbed::Callback`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_callback_3_01_r_07_arg_ts_8_8_8_08_4.html) class comes in -- it provides a much more lightweight way to wrap C/C++ function pointers that is compatible with embedded development.
 
