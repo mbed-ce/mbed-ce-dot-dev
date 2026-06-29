@@ -318,6 +318,36 @@ std::chrono::duration_cast<std::chrono::duration<float>>(7400us).count(); // ret
 
 ### Printing Times
 
+Traditionally, printing out times has been one of the rougher spots with the std::chrono library.
+
+If you wish to print time values with `printf()`-style functions, there are two steps involved: first, you have to convert your time_point or duration into the desired units that you want to print. Then, you have to call the `counts()` function to get the raw ticks value. Also, you must take care to use the correct format specifier corresponding to the `Rep` type of the duration. This is _usually_ int64_t, but can vary if, for instance, something defines a custom duration type. Luckily, modern compilers will warn if you get it wrong.
+
+```cpp
+// This provides macros like PRIi64 for printing fixed width integer types
+#include <cinttypes>
+
+<snip>
+
+TickerDataClock::duration someDuration = <...>;
+
+// This prints the duration as whatever the native counts type of TickerDataClock::duration is (in this case microseconds).
+printf("someDuration is %" PRIi64 "\n", someDuration.count());
+
+// It's better to be explicit about the units, especially if the duration type is not one of the standard ones like std::chrono::microseconds.
+// This makes sure your print isn't broken if the duration type changes.
+printf("someDuration is %" PRIi64 "ms\n", std::chrono::round<std::chrono::milliseconds>(someDuration).count());
+
+// Printing time_points is similar, except that you have to convert to a `duration` first
+RealTimeClock::time_point someTimePoint = <...>;
+printf("someTimePoint is %" PRIi64 "s since epoch\n", std::chrono::round<std::chrono::seconds>(someTimePoint.time_since_epoch()).count());
+```
+
+If you use the iostream library, e.g. `std::cout`, printing times is easier. C++20 added an [`operator<<` overload](https://en.cppreference.com/cpp/chrono/duration/operator_ltlt) for durations that dumps them as text, e.g. "1000ms" or "50us". Before C++20, this did not exist and working with iostreams was similar to above: you had to convert to an integer using `.count()` and deal with units manually.
+
+!!! warning "`iostream` Considered Harmful"
+    This author does not recommend the iostreams library for embedded use. Using it will generally lead to significantly increased code size and much longer compile times. Additionally, its reliance on attaching permanent state to global streams (e.g. to control number formatting) does not work well for larger (and especially multithreaded) applications. And trying to format floating-point numbers in a specific way with iostreams is liable to rapidly make you tear your own hair out.
+
+If you use the [fmt](https://fmt.dev) library, this appears to natively support chrono durations with [their own format syntax](https://fmt.dev/12.0/syntax/#chrono-format-specifications), though it does appear to default to treating them as dates. I have not used fmt myself, but definitely wish to become more familiar with it soon!
 
 ### std::chrono for Embedded Programming
 
