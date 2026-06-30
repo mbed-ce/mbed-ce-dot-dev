@@ -349,11 +349,90 @@ If you use the iostream library, e.g. `std::cout`, printing times is easier. C++
 
 If you use the [fmt](https://fmt.dev) library, this appears to natively support chrono durations with [their own format syntax](https://fmt.dev/12.0/syntax/#chrono-format-specifications), though it does appear to default to treating them as dates. I have not used fmt myself, but definitely wish to become more familiar with it soon!
 
-### std::chrono for Embedded Programming
+### std::chrono for Hardware Counters
 
-#### Converting Times from Hardware Counters
+In embedded programming specifically, `std::chrono` is very suited for another use: working with time values that come out of a hardware counter that runs at some arbitrary frequency. 
 
-#### Avoiding Runtime Conversions
+In desktop applications, and with the Mbed time sources, the OS generally does the scaling of the time from whatever unit the hardware uses into standard time units like micro/nanoseconds. However, if you are using a hardware timer or counter at the register level, it usually counts at the rate of some hardware clock that is not a nice round frequency. Converting these counts into standard units is not trivial.
+
+For example, let's say you have a TIMER peripheral that counts at 144MHz, and you want to read out the value of this timer in nanoseconds. The naive way to do this would be to use integer multiplication and division:
+
+```cpp
+uint32_t count_ns = TIMER->COUNT * 1000000000 / 144000000;
+```
+
+However, doing it this way is a bad idea, because it's quite vulnerable to integer overflow. If the value of `COUNT` is larger than 4 counts (!), then the multiplication will overflow a uint32_t and you will get a garbage result.
+
+!!! info
+    We also cannot use floats for this conversion in most cases because, as mentioned earlier, the resulting precision would depend on the absolute value of the time.
+
+There are various ways to get around this issue. You could cast the numbers to int64_t, or you could simplify the "fraction" by removing all the zeros:
+
+```cpp
+uint32_t count_ns = TIMER->COUNT * 1000 / 144;
+```
+
+This produces the same result, but the multiplication will still overflow if `COUNT` is larger than about 4.2 million. It also required manually simplifying the conversion based on the counter frequency, which is not ideal.
+
+What if I told you that we can do this automatically and in the most optimal manner by using std::chrono instead? Let's define the following:
+
+```cpp
+constexpr uint32_t timer_freq = 144000000; // Hz
+typedef std::chrono::duration<int64_t, std::ratio<1, timer_freq>> timer_counts;
+```
+
+This creates a custom duration type where the native representation is equal to counts from the hardware timer. Now we can create an easy way to read our timer:
+
+```cpp
+timer_counts readTimerCounts() {
+    return timer_counts(TIMER->COUNT));
+}
+
+std::chrono::nanoseconds readTimerNs() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(readTimerCounts());
+}
+```
+
+Now we can use native chrono operations to read the time in SI units without needing to do any math ourselves!
+
+Let's take a closer look at that duration_cast in the second function. This cast is doing the bulk of the work here by converting between two time units with different scalings. Internally, this cast does two steps at compile time:
+
+1. Find the common Rep type as the widest of the source and destination Rep types. In this case that would be `int64_t`.
+2. Find the conversion factor by dividing the Period of the source duration by the Period of the destination destination, then simplifying the resulting fraction. In this case this would divide 1/144M (`timer_counts::period`) by 1/1B (`std::chrono::nanoseconds::period`), resulting in a fraction of 125/18. In other words, for every 18 timer counts, the time advances by 125ns.
+
+Then, at runtime, it uses the conversion factor computed above to convert between counts and nanoseconds. In this case, it would end up doing: (counts * 125) / 18.
+
+This is neat because we still do everything using integer division, meaning we aren't subject to floating point issues, but we use the most optimal division to avoid overflow as much as possible. Note that instead of `duration_cast`, you could also use `round()` or `floor()` or `ceil()` as discussed earlier.
+
+Unfortunately, there is one downside here for embedded devices: these operations operate on int64_ts, which means they will be a bit slower than using int32_ts since ARM embedded CPUs only have 32-bit registers, so the core needs to shuffle multiple values around between memory and registers for each calculation. There is no way to avoid this issue entirely (unless you redefine all the standard chrono types using int32_ts and accept a much higher risk of overflow), but there is a way to work around it.
+
+Suppose you need to implement a busy wait using the hardware timer. You might think that the easiest way to do it would be this:
+
+```cpp
+void hw_timer_sleep(std::chrono::microseconds sleepTime) {
+    const auto endTime = readTimerNs() + sleepTime;
+    while(readTimerNs() < endTime) {}
+}
+```
+
+However, if you do it this way instead:
+
+```cpp
+void hw_timer_sleep(timer_counts sleepTime) {
+    const auto endTime = readTimerCounts() + sleepTime;
+    while(readTimerCounts() < until) {}
+}
+```
+
+then you avoid a great deal of expensive runtime conversions, and you will sleep more accurately. Even though it takes its  `timer_counts`, this function can still be called with microseconds, since microseconds are losslessly convertible to `timer_counts`:
+
+```cpp
+hw_timer_sleep(10us); // OK, converts automatically
+```
+
+Even better, since the argument is a constant, the above call does the microseconds to counts conversion _at compile time_, meaning that no time conversions are done at runtime at all!
+
+As you can see, using `std::chrono` to convert hardware counters makes a lot of the tough logic significantly simpler and avoids a lot of scary edge cases, though it does perform slightly worse than direct 32-bit integers. The only real limitation of this method is that the counter frequency _must_ be known at compile time -- if it can vary at runtime, then you will have to implement your own logic to do the conversions. If you want to really dive into std::chrono, go ahead and make a `Clock` class for your hardware timer! It's not difficult, but I will leave it as an exercise for the reader.
 
 ## Measuring Time with Timer
 
