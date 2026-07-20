@@ -55,9 +55,9 @@ From this, we can see that the platform name is `ststm32` and the board name is 
 
 Now, we can create our project and get started with Mbed CE. First, we need to make a blank PlatformIO project. If you are using the VS Code plugin, there is a wizard for this accessible via the PlatformIO sidebar. If using the command line interface, the `pio project init` command can be used.
 
-When creating the project, it will ask for a platform, board, and framework. Input the platform and board names that you found previously. As for the framework, mbed-ce is not an official option yet, so you can select arduino, mbed, or any other framework that the board supports. We'll fix that next.
+When creating the project via the wizard, it will ask for a platform, board, and framework. Input the platform and board names that you found previously. As for the framework, mbed-ce is not an official option yet, so you can select arduino, mbed, or any other framework that the board supports. We'll fix that next.
 
-Once your project has been created, open up `platformio.ini`. It should look something like this (example for Nucleo F429ZI):
+Once your project has been created, open up `platformio.ini`. It may be empty, or may look something like this (example for Nucleo F429ZI):
 
 ```
 [env:nucleo_f429zi]
@@ -71,11 +71,12 @@ framework = mbed
 
 We will need to change the `framework` to `mbed-ce`. We will also need to change the platform to the correct Mbed CE forked repository:
 
-|Platform|Replacement|
-|--------|-----------|
-|`ststm32`|`https://github.com/mbed-ce/pio-platform-ststm32.git#dev/add-mbed-ce`|
-|`freescalekinetis`|`https://github.com/mbed-ce/pio-platform-freescalekinetis.git#dev/add-mbed-ce-support`|
-|`nxplpc`|`https://github.com/mbed-ce/pio-platform-nxplpc.git#dev/add-mbed-ce-support`|
+|Platform|Replacement|Notes|
+|--------|-----------|-----|
+|`ststm32`|`https://github.com/mbed-ce/pio-platform-ststm32.git#dev/add-mbed-ce`|Mbed CE fork of official platform|
+|`freescalekinetis`|`https://github.com/mbed-ce/pio-platform-freescalekinetis.git#dev/add-mbed-ce-support`|Mbed CE fork of official platform|
+|`nxplpc`|`https://github.com/mbed-ce/pio-platform-nxplpc.git#dev/add-mbed-ce-support`|Mbed CE fork of official platform|
+|`raspberrypi`|`https://github.com/maxgerhardt/platform-raspberrypi.git#develop`|Fork of RPi Pico platform with many additional boards. For RPi Pico use `rpipico` as the board name.|
 
 Your platformio.ini file should now look something like:
 
@@ -111,3 +112,25 @@ Mbed CE contains a number of optional libraries that must be linked for function
     "mbed-netsocket" // For networking support
 ] 
 ```
+
+## Advanced: Using a Local Version of Mbed OS
+
+If you wish to point your PlatformIO project at a development build of Mbed OS, or prototype changes to Mbed OS within PlatformIO, you may wish to have PlatformIO use a local copy of Mbed OS rather than use the latest release. Luckily, you can do this via platformio.ini.
+
+Just add a line to your environment declaration like:
+
+```
+platform_packages =
+    framework-mbed-ce@symlink://C:/path/to/mbed-os
+```
+
+(Windows)
+
+or
+
+```
+platform_packages =
+    framework-mbed-ce@symlink:///path/to/mbed-os
+```
+
+(Linux/Mac)
