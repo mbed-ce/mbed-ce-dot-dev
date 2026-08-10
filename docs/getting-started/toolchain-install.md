@@ -11,11 +11,9 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
     > winget install Kitware.CMake Ninja-build.Ninja --scope machine
     ```
 
-2. Go to ARM's [toolchain download page](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) and download the exe installer under "Windows (mingw-w64-x86_64) hosted cross toolchains" &gt; "AArch32 bare-metal target (arm-none-eabi)".  Then, execute it and go through the installer, making sure to check the "Add path to environment variable" box!
+2. Go to ARM's [toolchain download page](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm). Then, click on the latest release under Available Releases, then scroll down to "Windows (mingw-w64-x86_64) hosted cross toolchains", expand it, and download the one that ends with `arm-none-eabi.msi`. Then, execute it and go through the installer.
 
     ![ARM toolchain download link](img/arm-toolchain-download.png)
-
-    ![ARM toolchain installer](img/arm-toolchain-installer.png)
 
 3. If you don't already have it, install [Git](https://git-scm.com/). It is important for work with Github repos - creating, importing or cloning of projects and libraries.
 
@@ -31,11 +29,15 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
     
     **Important!** It is recommended not to install the latest Python release if it's less than a couple months old. This will help you to avoid potential incompatibility issues with some dependencies later, as not every Python package publishes binaries right away for new releases. As of this writing (Oct 2025), use of version 3.13 or older is recommended.
 
-5. Add Python to your path. Search for "Edit environment variables for your account" in the start menu and click on the top result. Then find and edit "Path" in the top pane. Finally, add `C:\Users\<YourUsername>\AppData\Local\Python\bin` to the list of path entries. When done, it should look like: 
+5. Add Python to your user path. Search for "Edit environment variables for your account" in the start menu and click on the top result. Then find and edit "Path" in the top pane. Finally, add `C:\Users\<YourUsername>\AppData\Local\Python\bin` to the list of path entries. When done, it should look like: 
 
     ![Path dialog](img/python-in-user-path.png)
 
-6. Reboot your machine so that the changes to your PATH are applied. Then the toolchain should be set up!
+6. Add the ARM toolchain to your system path. Search for "Edit the system environment variables" in the start menu and click on the top result. Then find and edit "Path" in the *bottom* pane. Press Browse, then find the folder where the toolchain installed. It should be something like `C:\Program Files\Arm\GNU Toolchain mingw-w64-x86_64-arm-none-eabi\bin`.
+
+    ![Path dialog](img/arm-toolchain-in-system-path.png)
+
+7. Reboot your machine so that the changes to your PATH are applied (or just close and restart every program). Then the toolchain should be set up!
 
 ## On Mac:
 1. If you don't already have Homebrew, install it according to its instructions [here](https://brew.sh/).
