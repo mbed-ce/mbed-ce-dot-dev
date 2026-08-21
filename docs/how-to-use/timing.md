@@ -8,7 +8,7 @@ Mbed OS can have as many as four different time sources for applications to use.
 
 ### Microsecond (μs) Ticker
 
-**Classes:** `Timer`, `Ticker`, `TickerDataClock`
+**Classes:** [`Timer`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_timer.html), [`Ticker`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_ticker.html), [`HighResClock`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_high_res_clock.html)
 
 **Availability:** All targets
 
@@ -16,7 +16,7 @@ Mbed OS can have as many as four different time sources for applications to use.
 
 **Width:** 64 bits
 
-**Counts:** At all times except during deep sleep.
+**Counts:** At all times except during deep sleep (started on first use)
 
 The μs ticker is the primary way of keeping time in Mbed OS. It is the highest-resolution source of time available, and the only one available unconditionally on all targets. This makes it generally the time source used when internal Mbed OS functionality requires timekeeping. 
 
@@ -35,17 +35,17 @@ at the start of main().
 
 ### Low Power (LP) Ticker
 
-**Classes:** `LowPowerTimer`, `LowPowerTicker`, `TickerDataClock`
+**Classes:** [`LowPowerTimer`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_low_power_timer.html), [`LowPowerTicker`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_low_power_ticker.htmlhttps://mbed-ce.github.io/mbed-os/classmbed_1_1_low_power_ticker.html), [`LowPowerClock`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_low_power_clock.html)
 
 **Availability:** All targets [with Low-Power Ticker (`DEVICE_LPTICKER`) feature](https://mbed-ce.github.io/mbed-ce-test-tools/drivers/DEVICE_LPTICKER.html)
 
-**Resolution:** Depends on target, usually ~100 microseconds (reports in microseconds)
+**Resolution:** Depends on target, but must be between 250us and 15us. (reports in microseconds)
 
 **Width:** 64 bits
 
-**Counts:** At all times
+**Counts:** At all times (started on first use)
 
-The LP ticker is similar to the μs ticker except that it is implemented using a "low power" timer peripheral, such as the LPTIM on STM32s or the Always-On Timer on RP234x. These low-power timer peripherals are usually clocked at a slower rate (tick period between 10 and 100 us) and run off of a slower oscillator, such as an internal RC oscillator or an external 32.768kHz crystal.
+The LP ticker is similar to the μs ticker except that it is implemented using a "low power" timer peripheral, such as the LPTIM on STM32s or the Always-On Timer on RP234x. These low-power timer peripherals are usually clocked at a slower rate (tick period between 15 and 250 μs) and run off of a slower oscillator, such as an internal RC oscillator or an external 32.768kHz crystal.
 
 Unlike the μs ticker, the LP ticker remains on during deep sleep.
 
@@ -83,7 +83,7 @@ On most targets (not RP2040), the RTC will keep time across chip resets, so you 
 
 **Width:** 64 bits
 
-**Counts:** From boot
+**Counts:** Always once the OS kernel is started
 
 This time source provides access to the real-time OS's tick counter. This counter is incremented every millisecond when the RTOS performs, or would have performed, a scheduling operation.
 
@@ -169,7 +169,7 @@ constexpr auto LONG_TIMEOUT = 10s; // equivalent to std::chrono::seconds(10)
 `duration`s are only half the story of the chrono library. The other half is [`std::chrono::time_point`](https://cppreference.com/cpp/chrono/time_point). This class represents an absolute point in time, _as measured by_ some specific clock. `time_point`s are templated on the clock itself, meaning that time_points from two different clocks are treated as completely different types by the compiler. This makes it impossible to use them together in expressions, meaning there is a very strong compile-time check against accidentally comparing time_points from different clocks.
 
 !!! info "Ye Olden Days of C"
-    When using C time APIs, accidentally mixing up "arbitrary" timestamps (e.g. time since boot) and "absolute" timestamps (e.g. time since UNIX epoch) is a big issue that the language provides very little protection against. This is one of the primary reasons to use std::chrono over such raw integer types.
+    When using C time APIs, accidentally mixing up "arbitrary" timestamps (e.g. time since boot) and "absolute" timestamps (e.g. time since UNIX epoch), or mixing up time deltas and absolute times, are big issues that the language provides very little protection against. This is one of the primary reasons to use std::chrono over such raw integer types.
 
 Internally, each time point is simply stored as a duration (so, a single integer) representing the time since (or before) the epoch. What the epoch represents depends on the clock -- it could be the time since the device booted, or the time since Jan 1 1970, or something else entirely. You can get this duration by calling the `time_since_epoch()` method. You can also construct a `time_point` with a `duration` value to create one containing a specific time.
 
@@ -220,18 +220,11 @@ In Mbed OS, we instead provide a few different clocks representing the available
 auto rtcTime = RealTimeClock::now();
 
 // Gets the boot time timestamp from the μs ticker
-TickerDataClock usClock(get_us_ticker_data());
-auto usTickerTime = usClock.now();
+auto usTickerTime = HighResClock::now();
 
 // Gets the boot time timestamp from the LP ticker
-TickerDataClock lpClock(get_lp_ticker_data());
-auto lpTickerTime = lpClock.now();
+auto lpTickerTime = LowPowerClock.now();
 ```
-
-!!! note "Pseudo-Clocks"
-    As you may notice from the above code, `TickerDataClock` needs to be instantiated (passing the data of the ticker you want to read) before it can be used. This type of Clock is referred to as a pseudo-clock, and it does not quite match up with the regular std::chrono API. In particular, this API design means that time_points from the μs and LP ticker cannot be distinguished by the compiler, so some safety against bad behavior is lost. I am not entirely sure why Mbed uses this approach -- perhaps to enable more code reuse between code operating on the μs and LP tickers?
-
-    Also, it's worth noting that `TickerDataClock` is only a lightweight wrapper class around the actual ticker logic, so you can create as many instances as you like and don't need to worry about sharing them around. All instances will return the same time from now().
 
 ### Converting and Rounding Times
 
@@ -328,13 +321,13 @@ If you wish to print time values with `printf()`-style functions, there are two 
 
 <snip>
 
-TickerDataClock::duration someDuration = <...>;
+HighResClock::duration someDuration = <...>;
 
-// This prints the duration as whatever the native counts type of TickerDataClock::duration is (in this case microseconds).
+// This prints the duration as whatever the native counts type of HighResClock::duration is (in this case microseconds).
 printf("someDuration is %" PRIi64 "\n", someDuration.count());
 
 // It's better to be explicit about the units, especially if the duration type is not one of the standard ones like std::chrono::microseconds.
-// This makes sure your print isn't broken if the duration type changes.
+// This makes sure your print isn't broken if the type of someDuration changes.
 printf("someDuration is %" PRIi64 "ms\n", std::chrono::round<std::chrono::milliseconds>(someDuration).count());
 
 // Printing time_points is similar, except that you have to convert to a `duration` first
@@ -349,7 +342,52 @@ If you use the iostream library, e.g. `std::cout`, printing times is easier. C++
 
 If you use the [fmt](https://fmt.dev) library, this appears to natively support chrono durations with [their own format syntax](https://fmt.dev/12.0/syntax/#chrono-format-specifications), though it does appear to default to treating them as dates. I have not used fmt myself, but definitely wish to become more familiar with it soon!
 
-### std::chrono for Hardware Counters
+## Measuring Time with Timers
+
+Mbed OS provides simple wrapper classes called [`Timer`](https://mbed-ce.github.io/mbed-os/classmbed_1_1_timer.html) on top of std::chrono to make measuring times between events easier.
+
+## Scheduling Callbacks with Ticker
+
+## Delay Functions
+
+## C Time API
+
+Mbed also implements the back-end of the [C library time API](https://cppreference.com/c/chrono). The following functions get defined in terms of Mbed time sources:
+
+- [`clock()`](https://en.cppreference.com/c/chrono/clock) - Defined to return the time since boot, as measured by the μs ticker. Note that the resolution of this function (`CLOCKS_PER_SEC`) is defined by the Newlib C library as 100 ticks/s, so this is a fairly low-resolution way of measuring time.
+- [`gettimeofday()`](https://linux.die.net/man/2/gettimeofday) and [`time()`](https://cppreference.com/c/chrono/time) - Returns seconds since the unix epoch from the RTC (initializing it if needed).
+- [`settimeofday()`](https://linux.die.net/man/2/gettimeofday) and [`set_time()`](https://mbed-ce.github.io/mbed-os/group__platform__rtc__time.html#ga5d1e10825bf4a6ecdd567e9f2f384ed1) - Sets the given unix epoch time into the RTC (initializing it if needed).
+
+If your MCU does not have RTC support in Mbed, the functions that use the RTC will instead use the LP ticker (with an offset controlled by the setter functions). This should be functionally identical except that time will not persist after a chip reset. If the LP ticker also is not supported, these functions do nothing and return 0.
+
+Here's a quick example of how to use these functions:
+
+```cpp
+#include "mbed.h"
+
+int main()
+{
+    set_time(1256729737);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
+
+    while (true) {
+        time_t seconds = time(NULL);
+
+        printf("Time as seconds since January 1, 1970 = %u\n", (unsigned int)seconds);
+
+        printf("Time as a basic string = %s", ctime(&seconds)); // warning: this uses a global string buffer and is NOT thread safe
+
+        char buffer[32];
+        strftime(buffer, 32, "%I:%M %p\n", localtime(&seconds));
+        printf("Time as a custom formatted string = %s", buffer);
+
+        ThisThread::sleep_for(1000);
+    }
+}
+```
+
+Also note that if you wish to convert the UNIX timestamp returned by `time()` into a calendar date and time, this can be done using the [`gmtime_r()`](https://cppreference.com/c/chrono/gmtime) function. This will give you a `struct tm` which contains the calendar date and time.
+
+# Appendix: `std::chrono` for Hardware Counters
 
 In embedded programming specifically, `std::chrono` is very suited for another use: working with time values that come out of a hardware counter that runs at some arbitrary frequency. 
 
@@ -433,50 +471,3 @@ hw_timer_sleep(10us); // OK, converts automatically
 Even better, since the argument is a constant, the above call does the microseconds to counts conversion _at compile time_, meaning that no time conversions are done at runtime at all!
 
 As you can see, using `std::chrono` to convert hardware counters makes a lot of the tough logic significantly simpler and avoids a lot of scary edge cases, though it does perform slightly worse than direct 32-bit integers. The only real limitation of this method is that the counter frequency _must_ be known at compile time -- if it can vary at runtime, then you will have to implement your own logic to do the conversions. If you want to really dive into std::chrono, go ahead and make a `Clock` class for your hardware timer! It's not difficult, but I will leave it as an exercise for the reader.
-
-## Measuring Time with Timer
-
-## Getting the Time with a Clock
-
-## Scheduling Callbacks with Ticker
-
-## Delay Functions
-
-## C Time API
-
-Mbed also implements the back-end of the [C library time API](https://cppreference.com/c/chrono). The following functions get defined in terms of Mbed time sources:
-
-- [`clock()`](https://en.cppreference.com/c/chrono/clock) - Defined to return the time since boot, as measured by the μs ticker. Note that Newlib defines `CLOCKS_PER_SEC` to 100, so this is a fairly low-resolution way of measuring time.
-- [`gettimeofday()`](https://linux.die.net/man/2/gettimeofday) and [`time()`](https://cppreference.com/c/chrono/time) - Returns seconds since the unix epoch from the RTC (initializing it if needed).
-- [`settimeofday()`](https://linux.die.net/man/2/gettimeofday) and [`set_time()`](https://mbed-ce.github.io/mbed-os/group__platform__rtc__time.html#ga5d1e10825bf4a6ecdd567e9f2f384ed1) - Sets the given unix epoch time into the RTC (initializing it if needed).
-
-If your MCU does not have RTC support in Mbed, the functions that use the RTC will instead use the LP ticker (with an offset controlled by the setter functions). This should be functionally identical except that time will not persist after a chip reset. If the LP ticker also is not supported, these functions do nothing and return 0.
-
-Here's a quick example of how to use these functions:
-
-```cpp
-#include "mbed.h"
-
-int main()
-{
-    set_time(1256729737);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
-
-    while (true) {
-        time_t seconds = time(NULL);
-
-        printf("Time as seconds since January 1, 1970 = %u\n", (unsigned int)seconds);
-
-        printf("Time as a basic string = %s", ctime(&seconds)); // warning: this uses a global string buffer and is NOT thread safe
-
-        char buffer[32];
-        strftime(buffer, 32, "%I:%M %p\n", localtime(&seconds));
-        printf("Time as a custom formatted string = %s", buffer);
-
-        ThisThread::sleep_for(1000);
-    }
-}
-```
-
-Also note that if you wish to convert the UNIX timestamp returned by `time()` into a calendar date and time, this can be done using the [`gmtime_r()`](https://cppreference.com/c/chrono/gmtime) function. This will give you a `struct tm` which contains the calendar date and time.
-
-## Future Work
