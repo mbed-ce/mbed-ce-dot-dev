@@ -13,7 +13,7 @@ Recently, Mbed CE has been receiving an increasing number of contributions that 
 
 Despite these downsides, LLMs can be a very useful tool for efficiently scanning the substantial Mbed CE codebase and finding the correct location and method to make a desired change. They can also be a valuable method of auditing and fuzzing codebases for potential security holes, as they're capable of reading large amounts of code and testing the things they have identified. We have seen many developers use these tools effectively as part of their work on Mbed CE, and do not want to disallow such responsible usage.
 
-Ultimately, the choice of whether to use LLMs or not is up to your judgement as a developer based on the project and the task being done. To aid you in this choice, this document establishes a policy that defines the acceptable and unacceptable use of LLMs within Mbed CE.
+Ultimately, the choice of whether to use LLMs or not is up to the developer's choice based on the project and the task being done. To aid people in this choice, this document establishes a policy that defines the acceptable and unacceptable use of LLMs within Mbed CE.
 
 ## Mbed CE LLM Policy
 
