@@ -33,7 +33,7 @@ Additionally, when Ethernet connectivity is used, Mbed automatically places the 
 ## Dev Board Windows Drivers
 On Windows machines, the LPC1768 board (unlike many Mbed boards) requires a driver to be installed on the host for full functionality. Without this driver, the board will show up as a USB drive, so you can load code, but will not provide a serial port, so it is impossible to get text output from your code.
 
-To fix this, install the driver, which we have mirrored [here](resources/mbedWinSerial_16466.exe). This driver is signed, but unfortunately recent Windows 11 versions no longer see its signature as valid. So, on these versions of Windows, you must disable mandatory code signing of drivers by going [here](https://support.microsoft.com/en-us/windows/hardware/drivers/the-windows-driver-policy) and following the instructions under "How do I turn off the Windows Driver Policy?"
+To fix this, install the driver, which we have mirrored [here](resources/mbedWinSerial_16466.exe). This driver is signed, but unfortunately recent Windows 11 versions no longer see its signature as valid. So, on these versions of Windows, you must disable mandatory code signing of drivers by going [here](https://support.microsoft.com/en-us/windows/hardware/drivers/the-windows-driver-policy) and following the instructions under "How do I turn off the Windows Driver Policy?". Then, install the driver exe like normal.
 
 On Linux (and presumably Mac) this is a non-issue and the board will work without any additional drivers.
 
