@@ -1,6 +1,7 @@
 # LPC17xx MCU Overview
 
 ![LPC1768 board](img/mbed-lpc1768.jpg)
+![LPC1768 pinout](img/mbedMicrocontrollerPinout_cropped.jpg)
 
 The LPC1768 was the very first MCU to receive support from Mbed back in 2009, and it's one of the only early MCUs that's still supported in the latest Mbed version.  While it might be getting a little long in the tooth, with fairly high power consumption and small RAM compared to its modern competitors, it's still a capable chip with a large array of peripherals.  Not to mention, it has a significant base of educational users who rely on the Mbed LPC1768 dev board for their courses and projects.  Here's hoping we can keep this venerable chip supported for a long time coming!
 

@@ -13,7 +13,7 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
 
 2. Go to ARM's [toolchain download page](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm). Then, click on the latest release under Available Releases, then scroll down to "Windows (mingw-w64-x86_64) hosted cross toolchains", expand it, and download the one that ends with `arm-none-eabi.msi`. Then, execute it and go through the installer.
 
-    ![ARM toolchain download link](img/arm-toolchain-download.png)
+    ![ARM toolchain download link](img/arm-toolchain-download-windows.png)
 
 3. If you don't already have it, install [Git](https://git-scm.com/). It is important for work with Github repos - creating, importing or cloning of projects and libraries.
 
@@ -23,11 +23,11 @@ Note: You can also watch this in video version - [Youtube guide](https://youtu.b
     ```
     Then, in a *newly opened, non-administrator* terminal, you can install Python and make the new version the default. Example for 3.13:
     ```
-    > py install 3.13
-    > setx PYTHON_MANAGER_DEFAULT 3.13
+    > py install 3.14
+    > setx PYTHON_MANAGER_DEFAULT 3.14
     ```
     
-    **Important!** It is recommended not to install the latest Python release if it's less than a couple months old. This will help you to avoid potential incompatibility issues with some dependencies later, as not every Python package publishes binaries right away for new releases. As of this writing (Oct 2025), use of version 3.13 or older is recommended.
+    **Important!** It is recommended not to install the latest Python release if it's less than a couple months old. This will help you to avoid potential incompatibility issues with some dependencies later, as not every Python package publishes binaries right away for new releases. As of this writing (Sep 2026), use of version 3.14 or older is recommended.
 
 5. Add Python to your user path. Search for "Edit environment variables for your account" in the start menu and click on the top result. Then find and edit "Path" in the top pane. Finally, add `C:\Users\<YourUsername>\AppData\Local\Python\bin` to the list of path entries. When done, it should look like: 
 
@@ -57,8 +57,11 @@ _note: We do not recommend using the official Debian/Ubuntu `gcc-arm-none-eabi` 
     - Many distros can also utilize the [CMake snap package](https://snapcraft.io/cmake). 
     - Otherwise, if your distro doesn't have a version recent enough, you may have to build it from source.
 2. Install [Ninja Build](https://ninja-build.org/).  On Ubuntu you can install it with `sudo apt-get install ninja-build`, though other distros may vary.
-3. Go to ARM's [toolchain download page](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) and download the tar.xz toolchain under "x86_64 Linux hosted cross toolchains" &gt; "AArch32 bare-metal target (arm-none-eabi)".
-    - Note: If using an ARM64 machine like a Raspberry Pi, get the "AArch64 Linux hosted" build instead.
+3. Go to ARM's [toolchain download page](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm). Then, click on the latest release under Available Releases, then scroll down to "x86_64 Linux hosted cross toolchains", expand it, and download the one that ends with `arm-none-eabi.tar.xz`.
+    - Note: If using an ARM64 machine like a Raspberry Pi, get the "aarch64 Linux hosted cross toolchains" build instead.
+
+    ![ARM toolchain download link](img/arm-toolchain-download-linux.png)
+
 4. Open a terminal in the folder where you downloaded the tar.xz file, and extract it with `tar xf arm-gnuXXXX.tar.xz` (replace "arm-gnuXXXX" with the full name of the toolchain file)
 5. Using the terminal, copy the entire folder to /usr/local on your machine by running: `sudo mv arm-gnuXXXX /usr/local/gcc-arm`.
 6. Add the toolchain to your PATH.  The recommended way to do this is by editing `/etc/environment` (e.g. `sudo nano /etc/environment`).  Add the path `/usr/local/gcc-arm/bin` at the end (adding a colon before to separate it from the other paths).  For example, on Ubuntu 22.04, my environment file looks like
